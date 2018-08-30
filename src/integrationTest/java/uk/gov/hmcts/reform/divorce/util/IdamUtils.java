@@ -1,14 +1,20 @@
 package uk.gov.hmcts.reform.divorce.util;
 
 import io.restassured.RestAssured;
-import io.restassured.parsing.Parser;
 import io.restassured.response.Response;
+import org.apache.http.entity.ContentType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import uk.gov.hmcts.reform.divorce.model.RegisterUserRequest;
 
 import java.util.Base64;
 
 public class IdamUtils {
+
+    private static final String TOKEN = "token";
+    private static final String AUTHORIZATION_CODE = "authorization_code";
+    static final String CLIENT_ID = "divorce";
+    static final String CODE = "code";
 
     @Value("${auth.idam.client.baseUrl}")
     private String idamUserBaseUrl;
@@ -67,6 +73,13 @@ public class IdamUtils {
                 .post(idamCreateUrl());
     }
 
+    public final void createUserInIdam(RegisterUserRequest registerUserRequest) {
+        RestAssured.given()
+                .header(HttpHeaders.CONTENT_TYPE, ContentType.APPLICATION_JSON.toString())
+                .body(ResourceLoader.objectToJson(registerUserRequest))
+                .post(idamCreateUrl());
+    }
+
     public String getUserId(String jwt) {
         Response response = RestAssured.given()
                 .header("Authorization", jwt)
@@ -95,6 +108,43 @@ public class IdamUtils {
 
         String token = response.getBody().path("access_token");
         return "Bearer " + token;
+    }
+
+    public final String authenticateUser(String emailAddress, String password) {
+        final String authHeader = getBasicAuthHeader(emailAddress, password);
+        return "Bearer " + getAuthToken(authHeader);
+    }
+
+    final String getBasicAuthHeader(String emailAddress, String password) {
+        String userLoginDetails = String.join(":", emailAddress, password);
+        return "Basic " + new String(Base64.getEncoder().encode(userLoginDetails.getBytes()));
+    }
+
+    private String getAuthCode(String authHeader) {
+        return RestAssured.given()
+                .header(HttpHeaders.AUTHORIZATION, authHeader)
+                .queryParam("response_type", CODE)
+                .queryParam("client_id", CLIENT_ID)
+                .queryParam("redirect_uri", idamRedirectUri)
+                .post(idamUserBaseUrl + "/oauth2/authorize")
+                .body()
+                .jsonPath().get("code");
+    }
+
+    final String getAuthTokenByCode(String code) {
+        return RestAssured.given()
+                .queryParam("code", code)
+                .queryParam("grant_type", AUTHORIZATION_CODE)
+                .queryParam("redirect_uri", idamRedirectUri)
+                .queryParam("client_id", CLIENT_ID)
+                .queryParam("client_secret", idamSecret)
+                .post(idamUserBaseUrl + "/oauth2/token")
+                .body()
+                .jsonPath().get("access_" + TOKEN);
+    }
+
+    final String getAuthToken(String authHeader) {
+        return getAuthTokenByCode(getAuthCode(authHeader));
     }
 
     private String idamCreateUrl() {

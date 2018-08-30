@@ -17,12 +17,12 @@ public abstract class CcdSubmissionSupport extends IntegrationTest {
     CaseDetails submitCase(String fileName) {
         return ccdClientSupport.submitCase(
             ResourceLoader.loadJsonToObject(PAYLOAD_CONTEXT_PATH + fileName, Map.class),
-            getUserDetails());
+            getUserDetails(false));
     }
 
     CaseDetails updateCase(String caseId, String fileName, String eventId) {
         return ccdClientSupport.update(caseId,
             ResourceLoader.loadJsonToObject(PAYLOAD_CONTEXT_PATH + fileName, Map.class),
-            eventId, getUserDetails());
+            eventId, getUserDetails(false));
     }
 }
