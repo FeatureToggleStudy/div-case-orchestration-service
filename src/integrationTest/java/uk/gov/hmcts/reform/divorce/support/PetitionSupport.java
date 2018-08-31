@@ -10,10 +10,7 @@ import java.util.Collections;
 import java.util.Map;
 
 public abstract class PetitionSupport extends CcdAosWorkflowUpdateSupport {
-    private static final String CHECK_CCD = "checkCcd";
-    protected static final String CCD_FORMAT_DRAFT_CONTEXT_PATH = "ccd-format-draft/";
-    protected static final String DIVORCE_FORMAT_DRAFT_CONTEXT_PATH = "divorce-format-draft/";
-    protected static final String DIVORCE_FORMAT_KEY = "divorceFormat";
+    protected static final String CHECK_CCD = "checkCcd";
 
     @Value("${case.maintenance.draft.context-path}")
     private String draftContextPath;
@@ -72,6 +69,6 @@ public abstract class PetitionSupport extends CcdAosWorkflowUpdateSupport {
     }
 
     protected String getRequestUrl() {
-        return serverUrl + petitionContextPath;
+        return cmsServerUrl + petitionContextPath;
     }
 }
