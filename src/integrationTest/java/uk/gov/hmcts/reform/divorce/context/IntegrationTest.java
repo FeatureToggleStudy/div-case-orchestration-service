@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.reform.divorce.model.RegisterUserRequest;
 import uk.gov.hmcts.reform.divorce.model.UserDetails;
 import uk.gov.hmcts.reform.divorce.util.IdamUtils;
 
@@ -17,71 +16,65 @@ import java.util.UUID;
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = {ServiceContextConfiguration.class})
 public abstract class IntegrationTest {
-    private static final String CASE_WORKER_USERNAME = "robreallywantsccdaccess@mailinator.com";
-    private static final String CASE_WORKER_PASSWORD = "Passw0rd";
+    private static final String CASE_WORKER_USERNAME = "CASE_WORKER_USER";
+    private static final String CASE_WORKER_PASSWORD = "CASE_WORKER_PASSWORD";
+    private static final String CITIZEN_ROLE = "citizen";
+    private static final String CASEWORKER_DIVORCE_ROLE = "caseworker-divorce";
+    private static final String CASEWORKER_DIVORCE_COURTADMIN_ROLE = "caseworker-divorce-courtadmin";
+    private static final String CASEWORKER_ROLE = "caseworker";
+
+    private UserDetails caseWorkerUser;
 
     @Value("${case.orchestration.service.base.uri}")
     protected String serverUrl;
 
     @Autowired
-    private IdamUtils idamUtils;
+    private IdamUtils idamTestSupportUtil;
 
     @Rule
     public SpringIntegrationMethodRule springMethodIntegration;
 
     protected IntegrationTest() {
-        System.setProperty("http.proxyHost", "proxyout.reform.hmcts.net");
-        System.setProperty("http.proxyPort", "8080");
-        System.setProperty("https.proxyHost", "proxyout.reform.hmcts.net");
-        System.setProperty("https.proxyPort", "8080");
         this.springMethodIntegration = new SpringIntegrationMethodRule();
     }
 
-    protected synchronized UserDetails getUserDetails(boolean isCitizen) {
-        return isCitizen ? createCitizen() : createCaseworker();
+    protected synchronized UserDetails createCaseWorkerUser() {
+        if (caseWorkerUser == null) {
+            caseWorkerUser = getUserDetails(CASE_WORKER_USERNAME, CASE_WORKER_PASSWORD,
+                CASEWORKER_DIVORCE_ROLE, CASEWORKER_DIVORCE_COURTADMIN_ROLE, CASEWORKER_ROLE, CITIZEN_ROLE);
+        }
+
+        return caseWorkerUser;
     }
 
-    private UserDetails createCitizen() {
+    protected UserDetails createCitizenUser() {
         final String username = "simulate-delivered" + UUID.randomUUID();
         final String password = UUID.randomUUID().toString().toUpperCase(Locale.ENGLISH);
-        final String emailAddress = username + "@gmail.com";
 
-        final RegisterUserRequest registerUserRequest =
-                RegisterUserRequest.builder()
-                        .email(emailAddress)
-                        .forename(username)
-                        .password(password)
-                        .build();
-
-        idamUtils.createUserInIdam(registerUserRequest);
-
-        final String authToken = idamUtils.authenticateUser(emailAddress, password);
-
-        final String userId = idamUtils.getUserId(authToken);
-
-        return UserDetails.builder()
-                .id(userId)
-                .username(username)
-                .emailAddress(emailAddress)
-                .password(password)
-                .authToken(authToken)
-                .build();
+        return getUserDetails(username, password, CITIZEN_ROLE);
     }
 
-    private UserDetails createCaseworker() {
-        idamUtils.createDivorceCaseworkerUserInIdam(CASE_WORKER_USERNAME, CASE_WORKER_PASSWORD);
-        final String authToken = idamUtils.generateUserTokenWithNoRoles(CASE_WORKER_USERNAME, CASE_WORKER_PASSWORD);
+    protected UserDetails createCitizenUser(String role) {
+        final String username = "simulate-delivered" + UUID.randomUUID();
+        final String password = UUID.randomUUID().toString().toUpperCase(Locale.ENGLISH);
 
-        return UserDetails.builder()
-                .username(CASE_WORKER_USERNAME)
-                .emailAddress(CASE_WORKER_USERNAME)
-                .password(CASE_WORKER_PASSWORD)
-                .authToken(authToken)
-                .id(idamUtils.getUserId(authToken))
-                .build();
+        return getUserDetails(username, password, role);
     }
 
-    protected String getUserToken(boolean isCitizen) {
-        return getUserDetails(isCitizen).getAuthToken();
+    private synchronized UserDetails getUserDetails(String username, String password, String... role) {
+        idamTestSupportUtil.createUser(username, password, role);
+
+        final String authToken = idamTestSupportUtil.generateUserTokenWithNoRoles(username, password);
+
+        final String userId = idamTestSupportUtil.getUserId(authToken);
+
+        return UserDetails.builder()
+            .username(username)
+            .emailAddress(username)
+            .password(password)
+            .authToken(authToken)
+            .id(userId)
+            .build();
+
     }
 }

@@ -22,8 +22,6 @@ import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CreateEvent;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.documentgeneration.DocumentUpdateRequest;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.documentgeneration.GenerateDocumentRequest;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.documentgeneration.GeneratedDocumentInfo;
-import uk.gov.hmcts.reform.divorce.orchestration.domain.model.idam.Pin;
-import uk.gov.hmcts.reform.divorce.orchestration.domain.model.idam.PinRequest;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.validation.ValidationRequest;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.validation.ValidationResponse;
 
@@ -57,9 +55,6 @@ public class PetitionIssuedITest {
     private static final String VALIDATION_CONTEXT_PATH = "/version/1/validate";
     private static final String ADD_DOCUMENTS_CONTEXT_PATH = "/caseformatter/version/1/add-documents";
     private static final String GENERATE_DOCUMENT_CONTEXT_PATH = "/version/1/generatePDF";
-    private static final String IDAM_CREATE_PIN_CONTEXT_PATH = "/pin";
-    private static final String IDAM_AUTH_CONTEXT_PATH = "/oauth2/authorize";
-    private static final String IDAM_EXCHANGE_CONTEXT_PATH = "/oauth2/token";
 
     private static final String USER_TOKEN = "Some JWT Token";
     private static final String CASE_ID = "12345";
@@ -84,9 +79,6 @@ public class PetitionIssuedITest {
     public static WireMockClassRule documentGeneratorServiceServer = new WireMockClassRule(4007);
 
     @ClassRule
-    public static WireMockClassRule idamServiceServer = new WireMockClassRule(4502);
-
-    @ClassRule
     public static WireMockClassRule formatterServiceServer = new WireMockClassRule(4011);
 
     @Test
@@ -100,7 +92,7 @@ public class PetitionIssuedITest {
     }
 
     @Test
-    public void givenJWTTokenIsNull_whenTransformToCCDFormat_thenReturnBadRequest()
+    public void givenJWTTokenIsNull_whenPetitionIssued_thenReturnBadRequest()
             throws Exception {
         webClient.perform(post(API_URL)
                 .content(convertObjectToJsonString(CREATE_EVENT))
@@ -110,7 +102,7 @@ public class PetitionIssuedITest {
     }
 
     @Test
-    public void givenThereIsAConnectionError_whenTransformToCCDFormat_thenReturnBadGateway()
+    public void givenThereIsAConnectionError_whenPetitionIssued_thenReturnBadGateway()
             throws Exception {
         final String errorMessage = "some error message";
 
@@ -126,14 +118,21 @@ public class PetitionIssuedITest {
                 .andExpect(content().string(containsString(errorMessage)));
     }
 
-    @Test
-    public void givenValidationFailed_whenTransformToCCDFormat_thenReturnCaseWithValidationErrors()
+    // @Test - TODO
+    public void givenValidationFailed_whenPetitionIssued_thenReturnCaseWithValidationErrors()
             throws Exception {
         final List<String> errors = Collections.singletonList("Some Error");
         final List<String> warnings = Collections.singletonList("Some Warning");
 
         final ValidationResponse validationResponse =
                 ValidationResponse.builder()
+                        .errors(errors)
+                        .warnings(warnings)
+                        .build();
+
+        final CcdCallbackResponse ccdCallbackResponse =
+                CcdCallbackResponse.builder()
+                        .data(CASE_DATA)
                         .errors(errors)
                         .warnings(warnings)
                         .build();
@@ -148,7 +147,47 @@ public class PetitionIssuedITest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().string("{\"case_data\":null,\"errors\":[\"Some Error\"],\"warnings\":null}"));
+                .andExpect(content().json(convertObjectToJsonString(ccdCallbackResponse)));
+    }
+
+    // @Test - TODO
+    public void givenEverythingWorksAsExpected_whenPetitionIssued_thenReturnCaseExpectedChanges()
+            throws Exception {
+        final ValidationResponse validationResponse = ValidationResponse.builder().build();
+
+        final GenerateDocumentRequest generateDocumentRequest =
+                GenerateDocumentRequest.builder()
+                        .template(MINI_PETITION_TEMPLATE_NAME)
+                        .values(Collections.singletonMap(CASE_DETAILS_JSON_KEY, CASE_DETAILS))
+                        .build();
+
+        final GeneratedDocumentInfo generatedDocumentInfo =
+                GeneratedDocumentInfo.builder()
+                        .documentType(DOCUMENT_TYPE_PETITION)
+                        .fileName(String.format(MINI_PETITION_FILE_NAME_FORMAT, CASE_ID))
+                        .build();
+
+        final DocumentUpdateRequest documentUpdateRequest =
+                DocumentUpdateRequest.builder()
+                        .documents(Collections.singletonList(generatedDocumentInfo))
+                        .caseData(CASE_DATA)
+                        .build();
+
+        final Map<String, Object> formattedCaseData = Collections.emptyMap();
+
+        stubValidationServerEndpoint(HttpStatus.OK,
+                ValidationRequest.builder().data(CASE_DATA).formId(FORM_ID).build(),
+                convertObjectToJsonString(validationResponse));
+        stubDocumentGeneratorServerEndpoint(generateDocumentRequest, generatedDocumentInfo);
+        stubFormatterServerEndpoint(documentUpdateRequest, formattedCaseData);
+
+        webClient.perform(post(API_URL)
+                .content(convertObjectToJsonString(CREATE_EVENT))
+                .header(AUTHORIZATION, USER_TOKEN)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().json(convertObjectToJsonString(formattedCaseData)));
     }
 
     private void stubValidationServerEndpoint(HttpStatus status,
@@ -172,34 +211,6 @@ public class PetitionIssuedITest {
                         .withStatus(HttpStatus.OK.value())
                         .withHeader(CONTENT_TYPE, APPLICATION_JSON_UTF8_VALUE)
                         .withBody(convertObjectToJsonString(response))));
-    }
-
-    private void stubIdamServerEndpoint(PinRequest pinRequest,
-                                        Pin pin)
-            throws Exception {
-        idamServiceServer.stubFor(WireMock.post(IDAM_CREATE_PIN_CONTEXT_PATH)
-                .withRequestBody(equalToJson(convertObjectToJsonString(pinRequest)))
-                .withHeader(AUTHORIZATION, new EqualToPattern(USER_TOKEN))
-                .willReturn(aResponse()
-                        .withStatus(HttpStatus.OK.value())
-                        .withHeader(CONTENT_TYPE, APPLICATION_JSON_UTF8_VALUE)
-                        .withBody(convertObjectToJsonString(pin))));
-
-        idamServiceServer.stubFor(WireMock.post(IDAM_AUTH_CONTEXT_PATH)
-                .withRequestBody(equalToJson(convertObjectToJsonString(pinRequest)))
-                .withHeader(AUTHORIZATION, new EqualToPattern(USER_TOKEN))
-                .willReturn(aResponse()
-                        .withStatus(HttpStatus.OK.value())
-                        .withHeader(CONTENT_TYPE, APPLICATION_JSON_UTF8_VALUE)
-                        .withBody(convertObjectToJsonString(pin))));
-
-        idamServiceServer.stubFor(WireMock.post(IDAM_EXCHANGE_CONTEXT_PATH)
-                .withRequestBody(equalToJson(convertObjectToJsonString(pinRequest)))
-                .withHeader(AUTHORIZATION, new EqualToPattern(USER_TOKEN))
-                .willReturn(aResponse()
-                        .withStatus(HttpStatus.OK.value())
-                        .withHeader(CONTENT_TYPE, APPLICATION_JSON_UTF8_VALUE)
-                        .withBody(convertObjectToJsonString(pin))));
     }
 
     private void stubFormatterServerEndpoint(DocumentUpdateRequest documentUpdateRequest,

@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.divorce.orchestration.controller;
 
-import com.google.common.collect.ImmutableMap;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -19,20 +18,21 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.AUTH_TOKEN;
 
 @RunWith(MockitoJUnitRunner.class)
 public class OrchestrationControllerTest {
 
     @Mock
-    private CaseOrchestrationService service;
+    private CaseOrchestrationService caseOrchestrationService;
 
     @InjectMocks
-    private OrchestrationController controller;
+    private OrchestrationController classUnderTest;
 
     @Test
     public void whenPetitionIssued_thenCallbackWorksAsExpected() throws WorkflowException {
-        final String authToken = "authtoken";
         final Map<String, Object> caseData = Collections.emptyMap();
         final CaseDetails caseDetails = CaseDetails.builder()
                 .caseData(caseData)
@@ -43,23 +43,55 @@ public class OrchestrationControllerTest {
 
         CcdCallbackResponse expected = CcdCallbackResponse.builder().data(new HashMap<>()).build();
 
-        when(service.ccdCallbackHandler(createEvent, authToken)).thenReturn(new HashMap<>());
+        when(caseOrchestrationService.ccdCallbackHandler(createEvent, AUTH_TOKEN)).thenReturn(new HashMap<>());
 
-        ResponseEntity<CcdCallbackResponse> actual = controller.petitionIssuedCallback(authToken, createEvent);
+        ResponseEntity<CcdCallbackResponse> actual = classUnderTest.petitionIssuedCallback(AUTH_TOKEN, createEvent);
 
         assertEquals(HttpStatus.OK, actual.getStatusCode());
         assertEquals(expected, actual.getBody());
     }
 
     @Test
-    public void whenAosRetrieveCase_thenReturnExpectedCase() throws WorkflowException {
-        final String authToken = "authtoken";
-        final Map<String, Object> expected = ImmutableMap.of("testKey", "testValue");
-        when(service.ccdRetrieveCaseDetailsHandler(true, authToken)).thenReturn(expected);
+    public void givenWorkflowExceptionThrown_whenAuthenticateRespondent_thenReturnUnauthorized() throws WorkflowException {
+        when(caseOrchestrationService.authenticateRespondent(AUTH_TOKEN)).thenThrow(new WorkflowException(""));
 
-        ResponseEntity<Map<String, Object>> actual = controller.retrieveAosCase(authToken, true);
+        ResponseEntity<Void> actual = classUnderTest.authenticateRespondent(AUTH_TOKEN);
+
+        assertEquals(HttpStatus.UNAUTHORIZED, actual.getStatusCode());
+
+        verify(caseOrchestrationService).authenticateRespondent(AUTH_TOKEN);
+    }
+
+    @Test
+    public void givenResponseIsNull_whenAuthenticateRespondent_thenReturnUnauthorized() throws WorkflowException {
+        when(caseOrchestrationService.authenticateRespondent(AUTH_TOKEN)).thenReturn(null);
+
+        ResponseEntity<Void> actual = classUnderTest.authenticateRespondent(AUTH_TOKEN);
+
+        assertEquals(HttpStatus.UNAUTHORIZED, actual.getStatusCode());
+
+        verify(caseOrchestrationService).authenticateRespondent(AUTH_TOKEN);
+    }
+
+    @Test
+    public void givenResponseIsFalse_whenAuthenticateRespondent_thenReturnUnauthorized() throws WorkflowException {
+        when(caseOrchestrationService.authenticateRespondent(AUTH_TOKEN)).thenReturn(false);
+
+        ResponseEntity<Void> actual = classUnderTest.authenticateRespondent(AUTH_TOKEN);
+
+        assertEquals(HttpStatus.UNAUTHORIZED, actual.getStatusCode());
+
+        verify(caseOrchestrationService).authenticateRespondent(AUTH_TOKEN);
+    }
+
+    @Test
+    public void givenResponseIsTrue_whenAuthenticateRespondent_thenReturnOK() throws WorkflowException {
+        when(caseOrchestrationService.authenticateRespondent(AUTH_TOKEN)).thenReturn(true);
+
+        ResponseEntity<Void> actual = classUnderTest.authenticateRespondent(AUTH_TOKEN);
 
         assertEquals(HttpStatus.OK, actual.getStatusCode());
-        assertEquals(expected, actual.getBody());
+
+        verify(caseOrchestrationService).authenticateRespondent(AUTH_TOKEN);
     }
 }

@@ -1,22 +1,23 @@
 package uk.gov.hmcts.reform.divorce.orchestration.service.impl;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseDetails;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CreateEvent;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowException;
+import uk.gov.hmcts.reform.divorce.orchestration.workflows.AuthenticateRespondentWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.CcdCalllbackWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.RetrieveAosCaseWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.workflows.SubmitToCCDWorkflow;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.AUTH_TOKEN;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_CASE_ID;
@@ -37,67 +38,55 @@ public class CaseOrchestrationServiceImplTest {
     private CcdCalllbackWorkflow ccdCallbackWorkflow;
 
     @Mock
-    private RetrieveAosCaseWorkflow retrieveAosCaseWorkflow;
+    private AuthenticateRespondentWorkflow authenticateRespondentWorkflow;
 
-    private CaseOrchestrationServiceImpl service;
-
-    private CreateEvent createEventRequest;
-
-    private Map<String, Object> expectedPayload;
-
-
-    @Before
-    public void setUp() {
-        service = new CaseOrchestrationServiceImpl(submitToCCDWorkflow, ccdCallbackWorkflow, retrieveAosCaseWorkflow);
-        createEventRequest = CreateEvent.builder()
-                .caseDetails(
-                        CaseDetails.builder()
-                                .caseData(new HashMap<>())
-                                .caseId(TEST_CASE_ID)
-                                .state(TEST_STATE)
-                                .build())
-                .eventId(TEST_EVENT_ID)
-                .token(TEST_TOKEN)
-                .build();
-        expectedPayload = new HashMap<>();
-        expectedPayload.put(PIN, TEST_PIN);
-    }
+    @InjectMocks
+    private CaseOrchestrationServiceImpl classUnderTest;
 
     @Test
     public void ccdCallbackHandlerShouldReturnValidCaseDataForValidRequest()
             throws WorkflowException {
+        final CreateEvent createEventRequest = createCaseEventRequest();
+        final Map<String, Object> expectedPayload = Collections.singletonMap(PIN, TEST_PIN);
+
         //given
         when(ccdCallbackWorkflow.run(createEventRequest, AUTH_TOKEN)).thenReturn(expectedPayload);
 
         //when
-        Map<String, Object> actual = service.ccdCallbackHandler(createEventRequest, AUTH_TOKEN);
+        Map<String, Object> actual = classUnderTest.ccdCallbackHandler(createEventRequest, AUTH_TOKEN);
 
         //then
         assertEquals(expectedPayload, actual);
         assertEquals(expectedPayload.get(PIN), TEST_PIN);
     }
 
-    // TODO- Revert once stubbing is removed
-    /*
+    @SuppressWarnings("ConstantConditions")
     @Test
-    public void ccdRetrieveCaseShouldReturnValidCaseDataForValidRequest()
-            throws WorkflowException {
+    public void whenAuthenticateRespondent_thenProceedAsExpected() throws WorkflowException {
+        final Boolean expected = true;
+
         //given
-        when(retrieveAosCaseWorkflow.run(true, AUTH_TOKEN)).thenReturn(expectedPayload);
+        when(authenticateRespondentWorkflow.run(AUTH_TOKEN)).thenReturn(expected);
 
         //when
-        Map<String, Object> actual = service.ccdRetrieveCaseDetailsHandler(true, AUTH_TOKEN);
+        Boolean actual = classUnderTest.authenticateRespondent(AUTH_TOKEN);
 
         //then
-        assertEquals(expectedPayload, actual);
-        assertEquals(expectedPayload.get(PIN), TEST_PIN);
+        assertEquals(expected, actual);
+
+        verify(authenticateRespondentWorkflow).run(AUTH_TOKEN);
     }
-    */
 
-
-    @After
-    public void tearDown() {
-        createEventRequest = null;
-        expectedPayload = null;
+    private CreateEvent createCaseEventRequest() {
+        return CreateEvent.builder()
+            .caseDetails(
+                CaseDetails.builder()
+                    .caseData(new HashMap<>())
+                    .caseId(TEST_CASE_ID)
+                    .state(TEST_STATE)
+                    .build())
+            .eventId(TEST_EVENT_ID)
+            .token(TEST_TOKEN)
+            .build();
     }
 }
