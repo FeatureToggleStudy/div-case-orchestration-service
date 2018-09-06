@@ -12,7 +12,7 @@ import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowExce
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.DefaultTaskContext;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskContext;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskException;
-import uk.gov.hmcts.reform.divorce.orchestration.tasks.CaseDataAddDocumentFormatter;
+import uk.gov.hmcts.reform.divorce.orchestration.tasks.CaseDataFormatter;
 import uk.gov.hmcts.reform.divorce.orchestration.tasks.IdamPinGenerator;
 import uk.gov.hmcts.reform.divorce.orchestration.tasks.PetitionGenerator;
 import uk.gov.hmcts.reform.divorce.orchestration.tasks.RespondentLetterGenerator;
@@ -31,6 +31,8 @@ import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_EVENT
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_PIN;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_STATE;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_TOKEN;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.AUTH_TOKEN_JSON_KEY;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.CASE_DETAILS_JSON_KEY;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.PIN;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -50,7 +52,7 @@ public class CcdCalllbackWorkflowTest {
     private IdamPinGenerator idamPinGenerator;
 
     @Mock
-    private CaseDataAddDocumentFormatter caseDataAddDocumentFormatter;
+    private CaseDataFormatter caseDataFormatter;
 
     private CreateEvent createEventRequest;
     private Map<String, Object> payload;
@@ -65,7 +67,7 @@ public class CcdCalllbackWorkflowTest {
                         petitionGenerator,
                         idamPinGenerator,
                         respondentLetterGenerator,
-                        caseDataAddDocumentFormatter);
+                        caseDataFormatter);
 
         payload = new HashMap<>();
         payload.put("D8ScreenHasMarriageBroken", "YES");
@@ -86,17 +88,19 @@ public class CcdCalllbackWorkflowTest {
                         .build();
 
         context = new DefaultTaskContext();
+        context.setTransientObject(AUTH_TOKEN_JSON_KEY, AUTH_TOKEN);
+        context.setTransientObject(CASE_DETAILS_JSON_KEY, caseDetails);
     }
 
 
     @Test
     public void runShouldReturnValidCaseDataForValidCase() throws WorkflowException, TaskException {
         //Given
-        when(validateCaseData.execute(context, payload, AUTH_TOKEN, caseDetails)).thenReturn(payload);
-        when(petitionGenerator.execute(context, payload, AUTH_TOKEN, caseDetails)).thenReturn(payload);
-        when(idamPinGenerator.execute(context, payload, AUTH_TOKEN, caseDetails)).thenReturn(payload);
-        when(respondentLetterGenerator.execute(context, payload, AUTH_TOKEN, caseDetails)).thenReturn(payload);
-        when(caseDataAddDocumentFormatter.execute(context, payload, AUTH_TOKEN, caseDetails)).thenReturn(payload);
+        when(validateCaseData.execute(context, payload)).thenReturn(payload);
+        when(petitionGenerator.execute(context, payload)).thenReturn(payload);
+        when(idamPinGenerator.execute(context, payload)).thenReturn(payload);
+        when(respondentLetterGenerator.execute(context, payload)).thenReturn(payload);
+        when(caseDataFormatter.execute(context, payload)).thenReturn(payload);
 
         //When
         Map<String, Object> response = ccdCalllbackWorkflow.run(createEventRequest, AUTH_TOKEN);

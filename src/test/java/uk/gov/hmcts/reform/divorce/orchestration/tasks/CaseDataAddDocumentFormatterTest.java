@@ -22,7 +22,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.AUTH_TOKEN;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.D_8_DOCUMENTS_GENERATED;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_CASE_ID;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_DOC_URL;
@@ -32,8 +31,8 @@ import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.Orchestrati
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.RESPONDENT_INVITATION_TEMPLATE_NAME;
 
 @RunWith(MockitoJUnitRunner.class)
-public class CaseDataAddDocumentFormatterTest {
-    private CaseDataAddDocumentFormatter caseDataAddDocumentFormatter;
+public class CaseDataFormatterTest {
+    private CaseDataFormatter caseDataFormatter;
 
     @Mock
     private CaseFormatterClient caseFormatterClient;
@@ -45,7 +44,7 @@ public class CaseDataAddDocumentFormatterTest {
 
     @Before
     public void setUp() {
-        caseDataAddDocumentFormatter = new CaseDataAddDocumentFormatter(caseFormatterClient);
+        caseDataFormatter = new CaseDataFormatter(caseFormatterClient);
 
         petition =
                 GeneratedDocumentInfo.builder()
@@ -81,7 +80,7 @@ public class CaseDataAddDocumentFormatterTest {
         when(caseFormatterClient.addDocuments(any())).thenReturn(payload);
 
         //when
-        Map<String, Object> response = caseDataAddDocumentFormatter.execute(context, payload, AUTH_TOKEN, caseDetails);
+        Map<String, Object> response = caseDataFormatter.execute(context, payload);
 
         //then
         assertNotNull(response);
@@ -94,7 +93,7 @@ public class CaseDataAddDocumentFormatterTest {
 
     @After
     public void tearDown() {
-        caseDataAddDocumentFormatter = null;
+        caseDataFormatter = null;
     }
 
 }
