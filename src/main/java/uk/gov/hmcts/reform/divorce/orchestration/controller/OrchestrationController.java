@@ -232,7 +232,7 @@ public class OrchestrationController {
             response = CaseDataResponse.class),
         @ApiResponse(code = 300, message = "Multiple Cases"),
         @ApiResponse(code = 400, message = "No Case found"),
-        @ApiResponse(code = 400, message = "Bad Request")
+        @ApiResponse(code = 401, message = "Bad Request")
         })
     public ResponseEntity<CaseDataResponse> retrieveCase(
         @RequestHeader(value = HttpHeaders.AUTHORIZATION) String authorizationToken) throws WorkflowException {

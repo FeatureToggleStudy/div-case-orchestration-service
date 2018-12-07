@@ -9,6 +9,11 @@ import uk.gov.hmcts.reform.divorce.orchestration.domain.model.exception.CaseNotF
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowException;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskException;
 
+import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasJsonPath;
+import static com.jayway.jsonpath.matchers.JsonPathMatchers.isJson;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.AllOf.allOf;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -16,7 +21,7 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_ERROR;
 
 public class GlobalExceptionHandlerUTest {
-    private static  final int STATUS_CODE = HttpStatus.BAD_REQUEST.value();
+    private static final int STATUS_CODE = HttpStatus.BAD_REQUEST.value();
 
     private final GlobalExceptionHandler classUnderTest = new GlobalExceptionHandler();
 
@@ -27,7 +32,10 @@ public class GlobalExceptionHandlerUTest {
         ResponseEntity<Object> actual = classUnderTest.handleBadRequestException(feignException);
 
         assertEquals(STATUS_CODE, actual.getStatusCodeValue());
-        assertEquals(TEST_ERROR, actual.getBody());
+        assertThat(actual.getBody(), allOf(
+                isJson(),
+                hasJsonPath("errorMessage", is(TEST_ERROR))
+        ));
     }
 
     @Test
@@ -49,7 +57,10 @@ public class GlobalExceptionHandlerUTest {
         ResponseEntity<Object> actual = classUnderTest.handleWorkFlowException(workflowException);
 
         assertEquals(STATUS_CODE, actual.getStatusCodeValue());
-        assertEquals(TEST_ERROR, actual.getBody());
+        assertThat(actual.getBody(), allOf(
+                isJson(),
+                hasJsonPath("errorMessage", is(TEST_ERROR))
+        ));
     }
 
     @Test
@@ -75,7 +86,10 @@ public class GlobalExceptionHandlerUTest {
         ResponseEntity<Object> actual = classUnderTest.handleWorkFlowException(workflowException);
 
         assertEquals(STATUS_CODE, actual.getStatusCodeValue());
-        assertEquals(TEST_ERROR, actual.getBody());
+        assertThat(actual.getBody(), allOf(
+                isJson(),
+                hasJsonPath("errorMessage", is(TEST_ERROR))
+        ));
     }
 
     @Test

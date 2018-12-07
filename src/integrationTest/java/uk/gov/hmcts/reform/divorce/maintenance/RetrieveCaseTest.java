@@ -14,6 +14,10 @@ import uk.gov.hmcts.reform.divorce.util.RestUtil;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.jayway.jsonpath.matchers.JsonPathMatchers.hasJsonPath;
+import static com.jayway.jsonpath.matchers.JsonPathMatchers.isJson;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.AllOf.allOf;
 import static org.junit.Assert.assertEquals;
 import static uk.gov.hmcts.reform.divorce.util.ResourceLoader.loadJsonToObject;
 
@@ -56,6 +60,22 @@ public class RetrieveCaseTest extends CcdSubmissionSupport {
         assertEquals("AwaitingPayment", cosResponse.path(STATE_KEY));
         assertEquals(loadJsonToObject(PAYLOAD_CONTEXT_PATH + "divorce-session.json", Map.class),
             cosResponse.path(DATA_KEY));
+    }
+
+    @Test
+    public void givenCaseIsDuplicate_whenRetrieveCase_thenReturnErrorResponse() {
+        UserDetails userDetails = createCitizenUser();
+
+        submitCase("submit-complete-case.json", userDetails);
+        submitCase("submit-complete-case.json", userDetails);
+
+        Response cosResponse = retrieveCase(userDetails.getAuthToken());
+
+        assertEquals(HttpStatus.MULTIPLE_CHOICES.value(), cosResponse.getStatusCode());
+        assertThat(cosResponse.getBody().print(), allOf(
+                isJson(),
+                hasJsonPath("errorMessage")
+        ));
     }
 
     private Response retrieveCase(String userToken) {

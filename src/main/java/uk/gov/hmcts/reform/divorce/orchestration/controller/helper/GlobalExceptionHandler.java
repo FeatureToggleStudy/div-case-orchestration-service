@@ -2,7 +2,9 @@ package uk.gov.hmcts.reform.divorce.orchestration.controller.helper;
 
 import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -56,6 +58,11 @@ class GlobalExceptionHandler {
     }
 
     private ResponseEntity<Object> handleFeignException(FeignException exception) {
-        return ResponseEntity.status(exception.status()).body(exception.getMessage());
+        JSONObject jsonErrorResponse = new JSONObject()
+                .put("errorMessage", exception.getMessage());
+
+        return ResponseEntity.status(exception.status())
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(jsonErrorResponse.toString());
     }
 }
