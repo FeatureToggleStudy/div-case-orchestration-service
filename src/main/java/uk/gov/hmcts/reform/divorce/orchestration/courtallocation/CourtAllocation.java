@@ -10,7 +10,7 @@ public class CourtAllocation {
         this.courts = courts;
     }
 
-    public String selectCourtRandomly() {
+    public String selectCourtRandomly() {//TODO - is this the best name for this method?
         Random random = new Random();
         int randomIndex = random.nextInt(courts.length);
 
