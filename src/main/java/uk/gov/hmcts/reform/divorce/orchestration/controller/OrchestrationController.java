@@ -132,6 +132,8 @@ public class OrchestrationController {
 
         Map<String, Object> response = orchestrationService.submit(payload, authorizationToken);
 
+        //TODO - I could return the whole court information instead of just the court identifier. Even if at this point I only use the identifier...
+
         if (response.containsKey(VALIDATION_ERROR_KEY)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }

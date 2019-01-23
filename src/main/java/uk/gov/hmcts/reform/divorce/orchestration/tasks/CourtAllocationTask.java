@@ -20,6 +20,7 @@ public class CourtAllocationTask implements Task<Map<String, Object>> {
 
     @Override
     public Map<String, Object> execute(TaskContext context, Map<String, Object> payload) {
+        //TODO - good idea from Qiang - if a court is passed, then just use that court
         Optional<String> reasonForDivorce = Optional.ofNullable((String) payload.get("reasonForDivorce"));
         String selectedCourt = reasonForDivorce
                 .map(courtAllocation::selectCourtRandomly)

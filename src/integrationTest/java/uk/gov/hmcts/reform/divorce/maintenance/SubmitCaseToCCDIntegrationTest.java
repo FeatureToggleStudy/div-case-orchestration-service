@@ -30,6 +30,7 @@ public class SubmitCaseToCCDIntegrationTest extends IntegrationTest {
 
         assertEquals(HttpStatus.OK.value(), submissionResponse.getStatusCode());
         assertNotEquals("0", submissionResponse.getBody().path(CASE_ID_KEY));
+        //TODO - I have to return the selectedCourt
     }
 
     private Response submitCase(String userToken, String fileName) throws Exception {
