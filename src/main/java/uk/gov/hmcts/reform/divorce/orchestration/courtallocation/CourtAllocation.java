@@ -4,27 +4,28 @@ import com.jayway.jsonpath.JsonPath;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class CourtAllocation {
 
-    private static final Random random = new Random();
-
-    private final String[] weightedArrayOfCourts;
+    /*
+     * Each court will have a raffle ticket based on its attributed weight
+     */
+    private final String[] raffleTicketsPerCourt;
 
     private Map<String, String> courtPerReasonForDivorce;
 
+    private static final Random random = new Random();
+
     public CourtAllocation(CourtWeight[] courts) {//TODO - varargs?
-        List<String> weightedListOfCourts = new ArrayList<>();//TODO - refactor this
-        for (CourtWeight courtWeight : courts) {
-            for (int i = 0; i < courtWeight.getWeight(); i++) {
-                weightedListOfCourts.add(courtWeight.getCourtName());
-            }
-        }
-        this.weightedArrayOfCourts = weightedListOfCourts.stream().toArray(String[]::new);
+        //TODO - any good reasons for using Array not List?
+        this.raffleTicketsPerCourt = Arrays.stream(courts)
+                .flatMap(this::returnAdequateAmountOfRaffleTicketsPerCourt)
+                .map(CourtWeight::getCourtName)
+                .toArray(String[]::new);
     }
 
     public CourtAllocation(CourtAllocationPerReason[] courtAllocationsPerReason, CourtWeight[] courts) {
@@ -35,8 +36,8 @@ public class CourtAllocation {
     }
 
     public String selectCourtRandomly() {
-        int randomIndex = random.nextInt(weightedArrayOfCourts.length);
-        return weightedArrayOfCourts[randomIndex];
+        int randomIndex = random.nextInt(raffleTicketsPerCourt.length);
+        return raffleTicketsPerCourt[randomIndex];
     }
 
     public String selectCourtRandomly(String divorceCaseJson) {
@@ -49,4 +50,15 @@ public class CourtAllocation {
 
         return selectedCourt;
     }
+
+    private Stream<? extends CourtWeight> returnAdequateAmountOfRaffleTicketsPerCourt(CourtWeight courtWeight) {
+        ArrayList<CourtWeight> courtsList = new ArrayList<>();
+
+        for (int i = 0; i < courtWeight.getWeight(); i++) {
+            courtsList.add(courtWeight);
+        }
+
+        return courtsList.stream();
+    }
+
 }
