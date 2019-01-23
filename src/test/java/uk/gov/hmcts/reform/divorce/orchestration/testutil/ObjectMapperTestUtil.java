@@ -32,8 +32,4 @@ public class ObjectMapperTestUtil {
         }
     }
 
-    public static String generateDivorceCaseJsonWithReason(String reasonForDivorce) {
-        return objectMapper.createObjectNode().put("reasonForDivorce", reasonForDivorce).toString();
-    }
-
 }

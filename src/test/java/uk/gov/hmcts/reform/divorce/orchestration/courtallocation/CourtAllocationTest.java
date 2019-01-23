@@ -13,7 +13,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.isOneOf;
 import static org.hamcrest.core.Is.is;
-import static uk.gov.hmcts.reform.divorce.orchestration.testutil.ObjectMapperTestUtil.generateDivorceCaseJsonWithReason;
 
 public class CourtAllocationTest {
 
@@ -68,16 +67,13 @@ public class CourtAllocationTest {
                 }
         );
 
-        String adulteryCase = generateDivorceCaseJsonWithReason("adultery");
-        String desertionCase = generateDivorceCaseJsonWithReason("desertion");
-        String unreasonableBehaviourCase = generateDivorceCaseJsonWithReason("unreasonable-behaviour");
+        String courtForAdulteryReason = courtAllocation.selectCourtRandomly("adultery");
+        String courtForDesertionReason = courtAllocation.selectCourtRandomly("desertion");
+        String courtForUnreasonableBehaviourReason = courtAllocation.selectCourtRandomly("unreasonable-behaviour");
 
-        assertThat(courtAllocation.selectCourtRandomly(adulteryCase), is("northWest"));
-        assertThat(courtAllocation.selectCourtRandomly(desertionCase), is("serviceCentre"));
-        assertThat(courtAllocation.selectCourtRandomly(unreasonableBehaviourCase), isOneOf("eastMidlands",
-                "westMidlands",
-                "southWest")
-        );
+        assertThat(courtForAdulteryReason, is("northWest"));
+        assertThat(courtForDesertionReason, is("serviceCentre"));
+        assertThat(courtForUnreasonableBehaviourReason, isOneOf("eastMidlands", "westMidlands", "southWest"));
     }
 
 }

@@ -1,7 +1,5 @@
 package uk.gov.hmcts.reform.divorce.orchestration.courtallocation;
 
-import com.jayway.jsonpath.JsonPath;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
@@ -35,20 +33,18 @@ public class CourtAllocation {
         courtPerReasonForDivorce = Arrays.stream(courtAllocationsPerReason).collect(Collectors.toMap(CourtAllocationPerReason::getDivorceReason, CourtAllocationPerReason::getCourtName));
     }
 
-    public String selectCourtRandomly() {
-        int randomIndex = random.nextInt(raffleTicketsPerCourt.length);
-        return raffleTicketsPerCourt[randomIndex];
-    }
-
-    public String selectCourtRandomly(String divorceCaseJson) {
-        String reasonForDivorce = JsonPath.read(divorceCaseJson, "$.reasonForDivorce");
-
+    public String selectCourtRandomly(String reasonForDivorce) {//TODO - test with null reason
         String selectedCourt = courtPerReasonForDivorce.getOrDefault(reasonForDivorce, null);//TODO - test calling this method without setting up the map (courtPerReasonForDivorce)
         if (selectedCourt == null) {
             selectedCourt = selectCourtRandomly();
         }
 
         return selectedCourt;
+    }
+
+    public String selectCourtRandomly() {
+        int randomIndex = random.nextInt(raffleTicketsPerCourt.length);
+        return raffleTicketsPerCourt[randomIndex];
     }
 
     private Stream<? extends CourtWeight> returnAdequateAmountOfRaffleTicketsPerCourt(CourtWeight courtWeight) {
