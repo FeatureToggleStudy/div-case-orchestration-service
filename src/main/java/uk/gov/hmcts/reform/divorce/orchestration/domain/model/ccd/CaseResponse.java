@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @ApiModel(description = "The response for a citizen submitting or updating a case")
 @Builder
-public class CaseResponse {
+public class CaseResponse {//TODO - maybe I should create a response specific to case creation
     @ApiModelProperty(value = "The case ID returned on successful request")
     private String caseId;
     @ApiModelProperty(value = "An error message if any for a failed request")

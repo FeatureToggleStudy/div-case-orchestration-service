@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.DefaultTaskContext;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskContext;
+import uk.gov.hmcts.reform.divorce.orchestration.tasks.CourtAllocationTask;
 import uk.gov.hmcts.reform.divorce.orchestration.tasks.DeleteDraft;
 import uk.gov.hmcts.reform.divorce.orchestration.tasks.FormatDivorceSessionToCaseData;
 import uk.gov.hmcts.reform.divorce.orchestration.tasks.SubmitCaseToCCD;
@@ -24,6 +25,9 @@ import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.Orchestrati
 
 @RunWith(MockitoJUnitRunner.class)
 public class SubmitToCCDWorkflowTest {
+
+    @Mock
+    private CourtAllocationTask courtAllocationTask;
 
     @Mock
     private FormatDivorceSessionToCaseData formatDivorceSessionToCaseData;
@@ -54,6 +58,7 @@ public class SubmitToCCDWorkflowTest {
     public void runShouldExecuteTasksAndReturnPayload() throws Exception {
         Map<String, Object> resultData = Collections.singletonMap("Hello", "World");
 
+        when(courtAllocationTask.execute(context, testData)).thenReturn(testData);
         when(formatDivorceSessionToCaseData.execute(context, testData)).thenReturn(testData);
         when(validateCaseData.execute(context, testData)).thenReturn(testData);
         when(submitCaseToCCD.execute(context, testData)).thenReturn(resultData);
@@ -61,6 +66,7 @@ public class SubmitToCCDWorkflowTest {
 
         assertEquals(resultData, submitToCCDWorkflow.run(testData, AUTH_TOKEN));
 
+        verify(courtAllocationTask).execute(context, testData);
         verify(formatDivorceSessionToCaseData).execute(context, testData);
         verify(validateCaseData).execute(context, testData);
         verify(submitCaseToCCD).execute(context, testData);

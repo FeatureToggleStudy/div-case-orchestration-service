@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.DefaultWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowException;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.Task;
+import uk.gov.hmcts.reform.divorce.orchestration.tasks.CourtAllocationTask;
 import uk.gov.hmcts.reform.divorce.orchestration.tasks.DeleteDraft;
 import uk.gov.hmcts.reform.divorce.orchestration.tasks.FormatDivorceSessionToCaseData;
 import uk.gov.hmcts.reform.divorce.orchestration.tasks.SubmitCaseToCCD;
@@ -17,16 +18,20 @@ import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.Orchestrati
 
 @Component
 public class SubmitToCCDWorkflow extends DefaultWorkflow<Map<String, Object>> {
+
+    private CourtAllocationTask courtAllocationTask;
     private final FormatDivorceSessionToCaseData formatDivorceSessionToCaseData;
     private final ValidateCaseData validateCaseData;
     private final SubmitCaseToCCD submitCaseToCCD;
     private final DeleteDraft deleteDraft;
 
     @Autowired
-    public SubmitToCCDWorkflow(FormatDivorceSessionToCaseData formatDivorceSessionToCaseData,
+    public SubmitToCCDWorkflow(CourtAllocationTask courtAllocationTask,
+                               FormatDivorceSessionToCaseData formatDivorceSessionToCaseData,
                                ValidateCaseData validateCaseData,
                                SubmitCaseToCCD submitCaseToCCD,
                                DeleteDraft deleteDraft) {
+        this.courtAllocationTask = courtAllocationTask;
         this.formatDivorceSessionToCaseData = formatDivorceSessionToCaseData;
         this.validateCaseData = validateCaseData;
         this.submitCaseToCCD = submitCaseToCCD;
@@ -37,6 +42,7 @@ public class SubmitToCCDWorkflow extends DefaultWorkflow<Map<String, Object>> {
 
         return this.execute(
             new Task[] {
+                courtAllocationTask,
                 formatDivorceSessionToCaseData,
                 validateCaseData,
                 submitCaseToCCD,
