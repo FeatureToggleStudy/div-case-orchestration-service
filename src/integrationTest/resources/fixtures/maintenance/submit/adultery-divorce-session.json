@@ -1,0 +1,212 @@
+{
+  "screenHasMarriageBroken": "Yes",
+  "screenHasRespondentAddress": "Yes",
+  "screenHasMarriageCert": "Yes",
+  "helpWithFeesNeedHelp": "No",
+  "divorceWho": "wife",
+  "marriageIsSameSexCouple": "No",
+  "marriageDateDay": 10,
+  "marriageDateMonth": 2,
+  "marriageDateYear": 2010,
+  "marriageDate": "2010-02-10T00:00:00.000+0000",
+  "marriageCanDivorce": "true",
+  "marriedInUk": "Yes",
+  "jurisdictionConnection": [
+    "A",
+    "C"
+  ],
+  "connections": {
+    "A": "The Petitioner and the Respondent are habitually resident in England and Wales",
+    "B": null,
+    "C": "The Respondent is habitually resident in England and Wales",
+    "D": null,
+    "E": null,
+    "F": null,
+    "G": null
+  },
+  "jurisdictionPetitionerResidence": "Yes",
+  "jurisdictionRespondentResidence": "Yes",
+  "jurisdictionConfidentLegal": "Yes",
+  "petitionerContactDetailsConfidential": "share",
+  "petitionerFirstName": "Fred",
+  "petitionerLastName": "Flintstone",
+  "respondentFirstName": "Wilma",
+  "respondentLastName": "Flintstone",
+  "marriagePetitionerName": "Fred Flintstone",
+  "marriageRespondentName": "Wimla Flintstone",
+  "petitionerNameDifferentToMarriageCertificate": "No",
+  "petitionerHomeAddress": {
+    "addressType": "postcode",
+    "postcode": "CV2 3LE",
+    "street1": null,
+    "street2": null,
+    "town": null,
+    "postcodeManual": null,
+    "addressConfirmed": "true",
+    "addressAbroad": null,
+    "validPostcode": true,
+    "postcodeError": "false",
+    "url": null,
+    "address": [
+      "3 Haytor Rise",
+      "Coventry",
+      "CV2 3LE"
+    ]
+  },
+  "petitionerCorrespondenceUseHomeAddress": "Yes",
+  "petitionerCorrespondenceAddress": {
+    "addressType": "postcode",
+    "postcode": "CV2 3LE",
+    "street1": null,
+    "street2": null,
+    "town": null,
+    "postcodeManual": null,
+    "addressConfirmed": "true",
+    "addressAbroad": null,
+    "validPostcode": true,
+    "postcodeError": "false",
+    "url": null,
+    "address": [
+      "3 Haytor Rise",
+      "Coventry",
+      "CV2 3LE"
+    ]
+  },
+  "livingArrangementsLiveTogether": "Yes",
+  "respondentHomeAddress": {
+    "addressType": "postcode",
+    "postcode": "CV2 3LE",
+    "street1": null,
+    "street2": null,
+    "town": null,
+    "postcodeManual": null,
+    "addressConfirmed": "true",
+    "addressAbroad": null,
+    "validPostcode": true,
+    "postcodeError": "false",
+    "url": null,
+    "address": [
+      "3 Haytor Rise",
+      "Coventry",
+      "CV2 3LE"
+    ]
+  },
+  "respondentCorrespondenceUseHomeAddress": "Yes",
+  "respondentCorrespondenceAddress": {
+    "addressType": "postcode",
+    "postcode": "CV2 3LE",
+    "street1": null,
+    "street2": null,
+    "town": null,
+    "postcodeManual": null,
+    "addressConfirmed": "true",
+    "addressAbroad": null,
+    "validPostcode": true,
+    "postcodeError": "false",
+    "url": null,
+    "address": [
+      "3 Haytor Rise",
+      "Coventry",
+      "CV2 3LE"
+    ]
+  },
+  "reasonForDivorce": "adultery",
+  "reasonForDivorceHasMarriageDate": "true",
+  "reasonForDivorceShowAdultery": "true",
+  "reasonForDivorceShowUnreasonableBehaviour": "true",
+  "reasonForDivorceShowTwoYearsSeparation": "true",
+  "reasonForDivorceShowFiveYearsSeparation": "true",
+  "reasonForDivorceShowDesertion": "true",
+  "reasonForDivorceLimitReasons": "false",
+  "reasonForDivorceEnableAdultery": "true",
+  "reasonForDivorceAdulteryWishToName": "No",
+  "reasonForDivorceAdulteryKnowWhere": "Yes",
+  "reasonForDivorceAdulteryKnowWhen": "Yes",
+  "reasonForDivorceAdulteryDetails": "the bloke is a fish",
+  "reasonForDivorceAdulteryWhenDetails": "1st January 2019",
+  "reasonForDivorceAdulteryWhereDetails": "the chippy",
+  "reasonForDivorceAdulterySecondHandInfo": "yes",
+  "reasonForDivorceAdulterySecondHandInfoDetails": "foo",
+  "legalProceedings": "No",
+  "financialOrder": "No",
+  "claimsCosts": "No",
+  "court": {
+    "eastMidlands": {
+      "divorceCentre": "East Midlands Regional Divorce Centre",
+      "courtCity": "Nottingham",
+      "poBox": "PO Box 10447",
+      "postCode": "NG2 9QN",
+      "openingHours": "Telephone Enquiries from: 8.30am to 5pm",
+      "email": "eastmidlandsdivorce@hmcts.gsi.gov.uk",
+      "phoneNumber": "0300 303 0642",
+      "siteId": "AA01"
+    },
+    "westMidlands": {
+      "divorceCentre": "West Midlands Regional Divorce Centre",
+      "courtCity": "Stoke-on-Trent",
+      "poBox": "PO Box 3650",
+      "postCode": "ST4 9NH",
+      "openingHours": "Telephone Enquiries from: 8.30am to 5pm",
+      "email": "westmidlandsdivorce@hmcts.gsi.gov.uk",
+      "phoneNumber": "0300 303 0642",
+      "siteId": "AA02"
+    },
+    "southWest": {
+      "divorceCentre": "South West Regional Divorce Centre",
+      "courtCity": "Southampton",
+      "poBox": "PO Box 1792",
+      "postCode": "SO15 9GG",
+      "openingHours": "Telephone Enquiries from: 8.30am to 5pm",
+      "email": "sw-region-divorce@hmcts.gsi.gov.uk",
+      "phoneNumber": "0300 303 0642",
+      "siteId": "AA03"
+    },
+    "northWest": {
+      "divorceCentre": "North West Regional Divorce Centre",
+      "divorceCentreAddressName": "Liverpool Civil & Family Court",
+      "courtCity": "Liverpool",
+      "street": "35 Vernon Street",
+      "postCode": "L2 2BX",
+      "openingHours": "Telephone Enquiries from: 8.30am to 5pm",
+      "email": "family@liverpool.countycourt.gsi.gov.uk",
+      "phoneNumber": "0300 303 0642",
+      "siteId": "AA04"
+    },
+    "serviceCentre": {
+      "serviceCentreName": "Courts and Tribunals Service Centre",
+      "divorceCentre": "East Midlands Regional Divorce Centre",
+      "courtCity": "Nottingham",
+      "poBox": "PO Box 10447",
+      "postCode": "NG2 9QN",
+      "openingHours": "Telephone Enquiries from: 8.30am to 5pm",
+      "email": "divorce@justice.gov.uk",
+      "phoneNumber": "0300 303 0642",
+      "siteId": "AA01"
+    }
+  },
+  "courts": "southWest",
+  "confirmPrayer": "Yes",
+  "payment": {
+    "PaymentChannel": "online",
+    "PaymentTransactionId": "99dcme1oof2mdp82ccfb0bro1s",
+    "PaymentReference": "RC-1547-6431-5272-0673",
+    "PaymentDate": "16012019",
+    "PaymentAmount": "55000",
+    "PaymentStatus": "Success",
+    "PaymentFeeId": "FEE0002",
+    "PaymentSiteId": "AA03"
+  },
+  "marriageCertificateFiles": [
+    {
+      "createdBy": 0,
+      "createdOn": "2019-01-16T00:00:00.000+0000",
+      "lastModifiedBy": 0,
+      "modifiedOn": null,
+      "fileName": "Core Case Data _ HMCTS.png",
+      "fileUrl": "http://dm-store-aat.service.core-compute-aat.internal/documents/72042f30-d916-445b-b155-f282d95d90b1",
+      "mimeType": null,
+      "status": null
+    }
+  ],
+  "petitionerConsent": "Yes"
+}

@@ -15,6 +15,7 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static uk.gov.hmcts.reform.divorce.util.ResourceLoader.loadJson;
 
 public class SubmitCaseToCCDIntegrationTest extends IntegrationTest {
 
@@ -43,7 +44,7 @@ public class SubmitCaseToCCDIntegrationTest extends IntegrationTest {
         return RestUtil.postToRestService(
                 serverUrl + contextPath,
                 headers,
-                fileName == null ? null : ResourceLoader.loadJson(PAYLOAD_CONTEXT_PATH + fileName)
+                fileName == null ? null : loadJson(PAYLOAD_CONTEXT_PATH + fileName)
         );
     }
 }

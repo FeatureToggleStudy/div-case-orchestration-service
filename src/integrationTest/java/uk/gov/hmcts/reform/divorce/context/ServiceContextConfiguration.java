@@ -127,14 +127,15 @@ public class ServiceContextConfiguration {
     @Bean
     public Decoder feignDecoder() {
         MappingJackson2HttpMessageConverter jacksonConverter =
-                new MappingJackson2HttpMessageConverter(customObjectMapper());
+                new MappingJackson2HttpMessageConverter(objectMapper());
         jacksonConverter.setSupportedMediaTypes(ImmutableList.of(MediaType.APPLICATION_JSON));
 
         ObjectFactory<HttpMessageConverters> objectFactory = () -> new HttpMessageConverters(jacksonConverter);
         return new ResponseEntityDecoder(new SpringDecoder(objectFactory));
     }
 
-    private ObjectMapper customObjectMapper() {
+    @Bean
+    public ObjectMapper objectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JSR310Module());
         objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, true);
