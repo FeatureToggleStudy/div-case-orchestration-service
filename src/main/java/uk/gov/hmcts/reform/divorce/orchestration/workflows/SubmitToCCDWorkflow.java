@@ -40,8 +40,13 @@ public class SubmitToCCDWorkflow extends DefaultWorkflow<Map<String, Object>> {
     private DeleteDraft deleteDraft;
 
     public Map<String, Object> run(Map<String, Object> payload, String authToken) throws WorkflowException {
-        String reasonForDivorce = (String) payload.get("reasonForDivorce");//TODO - what if it's null
+        String reasonForDivorce = (String) payload.get("reasonForDivorce");
+        if (reasonForDivorce == null){
+            throw new WorkflowException("Reason for divorce was not provided");
+        }
+
         String selectedCourtId = courtAllocator.selectCourtForGivenDivorceReason(reasonForDivorce);//TODO - bring tests written for court allocation task
+        //TODO - what happens if I don't find a court??
 
         Map<String, Object> returnFromExecution = this.execute(
                 new Task[]{
