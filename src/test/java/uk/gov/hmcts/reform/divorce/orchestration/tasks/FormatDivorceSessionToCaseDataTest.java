@@ -27,6 +27,7 @@ public class FormatDivorceSessionToCaseDataTest {
 
     @InjectMocks
     private FormatDivorceSessionToCaseData formatDivorceSessionToCaseData;
+    //TODO - test that the court info on the context ends up in payload before it's translated
 
     private Map<String, Object> testData;
     private TaskContext context;

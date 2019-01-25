@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.divorce.orchestration.workflows;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.divorce.orchestration.courtallocation.CourtAllocator;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.DefaultWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowException;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.Task;
@@ -12,6 +13,7 @@ import uk.gov.hmcts.reform.divorce.orchestration.tasks.FormatDivorceSessionToCas
 import uk.gov.hmcts.reform.divorce.orchestration.tasks.SubmitCaseToCCD;
 import uk.gov.hmcts.reform.divorce.orchestration.tasks.ValidateCaseData;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.AUTH_TOKEN_JSON_KEY;
@@ -19,37 +21,44 @@ import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.Orchestrati
 @Component
 public class SubmitToCCDWorkflow extends DefaultWorkflow<Map<String, Object>> {
 
-    private CourtAllocationTask courtAllocationTask;
-    private final FormatDivorceSessionToCaseData formatDivorceSessionToCaseData;
-    private final ValidateCaseData validateCaseData;
-    private final SubmitCaseToCCD submitCaseToCCD;
-    private final DeleteDraft deleteDraft;
+    @Autowired
+    private CourtAllocator courtAllocator;
 
     @Autowired
-    public SubmitToCCDWorkflow(CourtAllocationTask courtAllocationTask,
-                               FormatDivorceSessionToCaseData formatDivorceSessionToCaseData,
-                               ValidateCaseData validateCaseData,
-                               SubmitCaseToCCD submitCaseToCCD,
-                               DeleteDraft deleteDraft) {
-        this.courtAllocationTask = courtAllocationTask;
-        this.formatDivorceSessionToCaseData = formatDivorceSessionToCaseData;
-        this.validateCaseData = validateCaseData;
-        this.submitCaseToCCD = submitCaseToCCD;
-        this.deleteDraft = deleteDraft;
-    }
+    private CourtAllocationTask courtAllocationTask;
+
+    @Autowired
+    private FormatDivorceSessionToCaseData formatDivorceSessionToCaseData;
+
+    @Autowired
+    private ValidateCaseData validateCaseData;
+
+    @Autowired
+    private SubmitCaseToCCD submitCaseToCCD;
+
+    @Autowired
+    private DeleteDraft deleteDraft;
 
     public Map<String, Object> run(Map<String, Object> payload, String authToken) throws WorkflowException {
+        String reasonForDivorce = (String) payload.get("reasonForDivorce");//TODO - what if it's null
+        String selectedCourtId = courtAllocator.selectCourtForGivenDivorceReason(reasonForDivorce);//TODO - bring tests written for court allocation task
 
-        return this.execute(
-            new Task[] {
-                courtAllocationTask,
-                formatDivorceSessionToCaseData,
-                validateCaseData,
-                submitCaseToCCD,
-                deleteDraft
-            },
-            payload,
-            ImmutablePair.of(AUTH_TOKEN_JSON_KEY, authToken)
+        Map<String, Object> returnFromExecution = this.execute(
+                new Task[]{
+                        courtAllocationTask,//TODO - is this order is ever changed, the solution will stop working - MVC test makes sure this never happens
+                        formatDivorceSessionToCaseData,
+                        validateCaseData,
+                        submitCaseToCCD,
+                        deleteDraft
+                },
+                payload,
+                ImmutablePair.of(AUTH_TOKEN_JSON_KEY, authToken),
+                ImmutablePair.of("selectedCourt", selectedCourtId)
         );
+
+        HashMap<String, Object> response = new HashMap<>(returnFromExecution);
+        response.put("allocatedCourt", selectedCourtId);
+
+        return response;//TODO - maybe this is the place to get the data from the context and add it to the response
     }
 }

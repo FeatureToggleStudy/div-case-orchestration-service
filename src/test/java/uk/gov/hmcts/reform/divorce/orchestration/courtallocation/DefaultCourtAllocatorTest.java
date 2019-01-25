@@ -14,7 +14,7 @@ import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.isOneOf;
 import static org.hamcrest.core.Is.is;
 
-public class CourtAllocationTest {
+public class DefaultCourtAllocatorTest {
 
     private final BigDecimal acceptedDeviation = new BigDecimal("0.005");
 
@@ -27,12 +27,12 @@ public class CourtAllocationTest {
                 new CourtWeight("northWest", 1),
                 new CourtWeight("serviceCentre", 2)
         };
-        CourtAllocation courtAllocation = new CourtAllocation(courts);
+        CourtAllocator courtAllocator = new DefaultCourtAllocator(courts);
         BigDecimal totalNumberOfAttempts = new BigDecimal(1000000);
 
         HashMap<String, BigDecimal> courtsDistribution = new HashMap<>();
         for (int i = 0; i < totalNumberOfAttempts.intValue(); i++) {
-            String selectedCourt = courtAllocation.selectCourtRandomly();
+            String selectedCourt = courtAllocator.selectCourtRandomly();
             BigDecimal casesPerCourt = courtsDistribution.getOrDefault(selectedCourt, ZERO);
             courtsDistribution.put(selectedCourt, casesPerCourt.add(ONE));
         }
@@ -55,7 +55,7 @@ public class CourtAllocationTest {
 
     @Test
     public void shouldAssignToSpecificCourtIfReasonForDivorceIsSpecified_OrRandomlyChoseCourtsForUnspecifiedReasons() {
-        CourtAllocation courtAllocation = new CourtAllocation(
+        CourtAllocator courtAllocator = new DefaultCourtAllocator(
                 new CourtAllocationPerReason[]{
                         new CourtAllocationPerReason("northWest", "adultery"),
                         new CourtAllocationPerReason("serviceCentre", "desertion")//TODO - should I check for no court repetition?
@@ -67,9 +67,9 @@ public class CourtAllocationTest {
                 }
         );
 
-        String courtForAdulteryReason = courtAllocation.selectCourtRandomly("adultery");
-        String courtForDesertionReason = courtAllocation.selectCourtRandomly("desertion");
-        String courtForUnreasonableBehaviourReason = courtAllocation.selectCourtRandomly("unreasonable-behaviour");
+        String courtForAdulteryReason = courtAllocator.selectCourtForGivenDivorceReason("adultery");
+        String courtForDesertionReason = courtAllocator.selectCourtForGivenDivorceReason("desertion");
+        String courtForUnreasonableBehaviourReason = courtAllocator.selectCourtForGivenDivorceReason("unreasonable-behaviour");
 
         assertThat(courtForAdulteryReason, is("northWest"));
         assertThat(courtForDesertionReason, is("serviceCentre"));

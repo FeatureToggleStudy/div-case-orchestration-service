@@ -7,7 +7,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class CourtAllocation {
+public class DefaultCourtAllocator implements CourtAllocator {
 
     /*
      * Each court will have a raffle ticket based on its attributed weight
@@ -18,7 +18,7 @@ public class CourtAllocation {
 
     private static final Random random = new Random();
 
-    public CourtAllocation(CourtWeight[] courts) {//TODO - varargs?
+    public DefaultCourtAllocator(CourtWeight[] courts) {//TODO - varargs?
         //TODO - any good reasons for using Array not List?
         this.raffleTicketsPerCourt = Arrays.stream(courts)
                 .flatMap(this::returnAdequateAmountOfRaffleTicketsPerCourt)
@@ -26,14 +26,15 @@ public class CourtAllocation {
                 .toArray(String[]::new);
     }
 
-    public CourtAllocation(CourtAllocationPerReason[] courtAllocationsPerReason, CourtWeight[] courts) {
+    public DefaultCourtAllocator(CourtAllocationPerReason[] courtAllocationsPerReason, CourtWeight[] courts) {
         this(courts);
 
         //TODO - any good reasons for using Array not List?
         courtPerReasonForDivorce = Arrays.stream(courtAllocationsPerReason).collect(Collectors.toMap(CourtAllocationPerReason::getDivorceReason, CourtAllocationPerReason::getCourtName));
     }
 
-    public String selectCourtRandomly(String reasonForDivorce) {//TODO - test with null reason
+    @Override
+    public String selectCourtForGivenDivorceReason(String reasonForDivorce) {//TODO - test with null reason
         String selectedCourt = courtPerReasonForDivorce.getOrDefault(reasonForDivorce, null);//TODO - test calling this method without setting up the map (courtPerReasonForDivorce)
         if (selectedCourt == null) {
             selectedCourt = selectCourtRandomly();
@@ -42,6 +43,7 @@ public class CourtAllocation {
         return selectedCourt;
     }
 
+    @Override
     public String selectCourtRandomly() {
         int randomIndex = random.nextInt(raffleTicketsPerCourt.length);
         return raffleTicketsPerCourt[randomIndex];

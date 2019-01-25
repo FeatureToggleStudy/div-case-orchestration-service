@@ -6,7 +6,7 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.hmcts.reform.divorce.orchestration.courtallocation.CourtAllocation;
+import uk.gov.hmcts.reform.divorce.orchestration.courtallocation.DefaultCourtAllocator;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -25,7 +25,7 @@ public class CourtAllocationTaskTest {
     private static final String REASON_FOR_DIVORCE_KEY = "reasonForDivorce";
 
     @Mock
-    private CourtAllocation courtAllocation;//TODO - maybe use interface here?
+    private DefaultCourtAllocator courtAllocation;//TODO - maybe use interface here?
 
     @InjectMocks
     private CourtAllocationTask courtAllocationTask;
@@ -34,7 +34,7 @@ public class CourtAllocationTaskTest {
 
     @Before
     public void setUp(){
-        when(courtAllocation.selectCourtRandomly(eq("testReason"))).thenReturn("selectedCourtForReason");
+        when(courtAllocation.selectCourtForGivenDivorceReason(eq("testReason"))).thenReturn("selectedCourtForReason");
         when(courtAllocation.selectCourtRandomly()).thenReturn("randomlySelectedCourt");
     }
 

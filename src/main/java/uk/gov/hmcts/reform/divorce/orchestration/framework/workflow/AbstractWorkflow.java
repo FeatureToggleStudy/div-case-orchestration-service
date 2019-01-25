@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 abstract class AbstractWorkflow<T> implements Workflow<T> {
-    private final ThreadLocal<DefaultTaskContext> threadLocalContext = new ThreadLocal<>();
+    private final ThreadLocal<DefaultTaskContext> threadLocalContext = new ThreadLocal<>();//TODO - understand how this works - I could use it from service to get court
 
     @Override
     public T execute(Task[] tasks, DefaultTaskContext context, T payload, Pair... pairs) throws WorkflowException {
