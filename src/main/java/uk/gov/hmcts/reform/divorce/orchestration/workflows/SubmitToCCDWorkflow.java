@@ -40,7 +40,7 @@ public class SubmitToCCDWorkflow extends DefaultWorkflow<Map<String, Object>> {
     private DeleteDraft deleteDraft;
 
     public Map<String, Object> run(Map<String, Object> payload, String authToken) throws WorkflowException {
-        String reasonForDivorce = (String) payload.get("reasonForDivorce");
+        String reasonForDivorce = (String) payload.get("reasonForDivorce");//TODO move to task...
         if (reasonForDivorce == null){
             throw new WorkflowException("Reason for divorce was not provided");
         }

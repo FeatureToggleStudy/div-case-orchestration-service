@@ -6,11 +6,14 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.hmcts.reform.divorce.orchestration.courtallocation.DefaultCourtAllocator;
+import uk.gov.hmcts.reform.divorce.orchestration.courtallocation.CourtAllocator;
+import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.DefaultTaskContext;
+import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskContext;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.collection.IsMapContaining.hasEntry;
 import static org.hamcrest.core.AllOf.allOf;
@@ -25,60 +28,71 @@ public class CourtAllocationTaskTest {
     private static final String REASON_FOR_DIVORCE_KEY = "reasonForDivorce";
 
     @Mock
-    private DefaultCourtAllocator courtAllocation;//TODO - maybe use interface here?
+    private CourtAllocator courtAllocator;
 
     @InjectMocks
     private CourtAllocationTask courtAllocationTask;
+
+    private TaskContext context;
 
     //TODO - test configuration from environment variable
 
     @Before
     public void setUp(){
-        when(courtAllocation.selectCourtForGivenDivorceReason(eq("testReason"))).thenReturn("selectedCourtForReason");
-        when(courtAllocation.selectCourtRandomly()).thenReturn("randomlySelectedCourt");
+        when(courtAllocator.selectCourtForGivenDivorceReason(eq("testReason"))).thenReturn("selectedCourtForReason");
+        when(courtAllocator.selectCourtRandomly()).thenReturn("randomlySelectedCourt");
+
+        context = new DefaultTaskContext();
     }
 
+    //TODO - test that court info also ends up in context
+
+    //TODO - refactor
+
     @Test
-    public void shouldReturnSelectedCourtAsPartOfIncomingMap() {
+    public void shouldReturnSelectedCourtAsPartOfOutgoingMap_AndCourtInfoIsWrittenToTaskContext() {
         HashMap incomingMap = new HashMap<>();
         incomingMap.put("firstKey", "firstValue");
         incomingMap.put(REASON_FOR_DIVORCE_KEY, "testReason");
 
-        Map<String, Object> outgoingMap = courtAllocationTask.execute(null, incomingMap);
+        Map<String, Object> outgoingMap = courtAllocationTask.execute(context, incomingMap);
 
         assertThat(outgoingMap, allOf(
                 hasEntry(is("firstKey"), is("firstValue")),
                 hasEntry(is("reasonForDivorce"), is("testReason")),
                 hasEntry(is(SELECTED_COURT_KEY), is("selectedCourtForReason"))
         ));
+        assertThat(context.getTransientObject("selectedCourt"), equalTo("selectedCourtForReason"));
     }
 
     @Test
-    public void shouldOverwriteSelectedCourtFromIncomingMap() {
+    public void shouldOverwriteSelectedCourtFromIncomingMap_AndCourtInfoIsWrittenToTaskContext() {
         HashMap incomingMap = new HashMap<>();
         incomingMap.put("firstKey", "firstValue");
         incomingMap.put(REASON_FOR_DIVORCE_KEY, "testReason");
         incomingMap.put(SELECTED_COURT_KEY, "previouslySelectedCourt");
 
-        Map<String, Object> outgoingMap = courtAllocationTask.execute(null, incomingMap);
+        Map<String, Object> outgoingMap = courtAllocationTask.execute(context, incomingMap);
 
         assertThat(outgoingMap, allOf(
                 hasEntry(is("firstKey"), is("firstValue")),
                 hasEntry(is(SELECTED_COURT_KEY), is("selectedCourtForReason"))
         ));
+        assertThat(context.getTransientObject("selectedCourt"), equalTo("selectedCourtForReason"));
     }
 
     @Test
-    public void shouldRandomlySelectCourtEvenWithoutReasonForDivorce() {
+    public void shouldRandomlySelectCourtEvenWithoutReasonForDivorce_AndCourtInfoIsWrittenToTaskContext() {
         HashMap incomingMap = new HashMap<>();
         incomingMap.put("firstKey", "firstValue");
 
-        Map<String, Object> outgoingMap = courtAllocationTask.execute(null, incomingMap);
+        Map<String, Object> outgoingMap = courtAllocationTask.execute(context, incomingMap);
 
         assertThat(outgoingMap, allOf(
                 hasEntry(is("firstKey"), is("firstValue")),
                 hasEntry(is(SELECTED_COURT_KEY), is("randomlySelectedCourt"))
         ));
+        assertThat(context.getTransientObject("selectedCourt"), equalTo("randomlySelectedCourt"));
     }
 
 }
