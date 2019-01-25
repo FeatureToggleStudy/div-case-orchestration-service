@@ -31,7 +31,7 @@ public class CourtAllocationTask implements Task<Map<String, Object>> {
                 .map(courtAllocator::selectCourtForGivenDivorceReason)
                 .orElseGet(courtAllocator::selectCourtRandomly);
 
-        log.info("Court {} selected for case.", selectedCourt);
+        log.info("Court {} selected for case.", selectedCourt);//TODO - add case id to logs
 
         HashMap<String, Object> mapToReturn = new HashMap<>(payload);
         mapToReturn.put(SELECTED_COURT_KEY, selectedCourt);

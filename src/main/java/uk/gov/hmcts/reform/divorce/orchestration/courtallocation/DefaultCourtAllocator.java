@@ -35,6 +35,7 @@ public class DefaultCourtAllocator implements CourtAllocator {
 
     @Override
     public String selectCourtForGivenDivorceReason(String reasonForDivorce) {//TODO - test with null reason
+        //TODO - use optional..
         String selectedCourt = courtPerReasonForDivorce.getOrDefault(reasonForDivorce, null);//TODO - test calling this method without setting up the map (courtPerReasonForDivorce)
         if (selectedCourt == null) {
             selectedCourt = selectCourtRandomly();
