@@ -14,6 +14,8 @@ import java.util.Collections;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.AUTH_TOKEN;
@@ -27,7 +29,6 @@ public class FormatDivorceSessionToCaseDataTest {
 
     @InjectMocks
     private FormatDivorceSessionToCaseData formatDivorceSessionToCaseData;
-    //TODO - test that the court info on the context ends up in payload before it's translated
 
     private Map<String, Object> testData;
     private TaskContext context;
@@ -37,6 +38,7 @@ public class FormatDivorceSessionToCaseDataTest {
         testData = Collections.emptyMap();
         context = new DefaultTaskContext();
         context.setTransientObject(AUTH_TOKEN_JSON_KEY, AUTH_TOKEN);
+        context.setTransientObject("selectedCourt", "randomlySelectedCourt");
     }
 
     @Test
@@ -45,6 +47,10 @@ public class FormatDivorceSessionToCaseDataTest {
 
         assertEquals(testData, formatDivorceSessionToCaseData.execute(context, testData));
 
-        verify(caseFormatterClient).transformToCCDFormat(AUTH_TOKEN, testData);
+        verify(caseFormatterClient).transformToCCDFormat(eq(AUTH_TOKEN), argThat(payload -> {
+            String selectedCourt = (String) payload.get("courts");
+            return "randomlySelectedCourt".equals(selectedCourt);
+        }));
     }
+
 }
