@@ -5,9 +5,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.divorce.orchestration.client.CaseFormatterClient;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.Task;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskContext;
-import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskException;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.AUTH_TOKEN_JSON_KEY;
@@ -23,18 +21,10 @@ public class FormatDivorceSessionToCaseData implements Task<Map<String, Object>>
     }
 
     @Override
-    public Map<String, Object> execute(TaskContext context, Map<String, Object> payload) throws TaskException {
-        String selectedCourt = (String) context.getTransientObject("selectedCourt");
-        if (selectedCourt == null) {
-            throw new TaskException("Could not find selected court.");
-        }
-
-        HashMap<String, Object> payloadCopy = new HashMap<>(payload);
-        payloadCopy.put("courts", selectedCourt);//TODO - constant
-
+    public Map<String, Object> execute(TaskContext context, Map<String, Object> payload) {
         return caseFormatterClient.transformToCCDFormat(
                 context.getTransientObject(AUTH_TOKEN_JSON_KEY).toString(),
-                payloadCopy
+                payload
         );
     }
 
