@@ -105,7 +105,7 @@ public class SubmitCaseTest {
                     isJson(),
                     hasJsonPath("$.caseId", equalTo(TEST_CASE_ID)),
                     hasJsonPath("$.status", equalTo(SUCCESS_STATUS)),
-                    hasJsonPath("$.allocatedCourt.courtId", is(notNullValue()))//TODO - test failing - I'm not sure I can test this here as responses are stubbed. Maybe somewhere else, maybe in the integration test - probably on the unit test for the controller.
+                    hasJsonPath("$.allocatedCourt.courtId", is(notNullValue()))
                 )));
     }
 
