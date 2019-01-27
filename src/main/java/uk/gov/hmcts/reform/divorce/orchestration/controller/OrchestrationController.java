@@ -132,8 +132,14 @@ public class OrchestrationController {
 
         Map<String, Object> response = orchestrationService.submit(payload, authorizationToken);
 
+        //just as a test get the first one. Will need to change the CaseResponse object to allow a list of errors.
         if (response.containsKey(VALIDATION_ERROR_KEY)) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+            return ResponseEntity.badRequest()
+                .body(
+                    CaseResponse.builder()
+                            .error(getErrors(response).get(0))
+                            .build()
+                );
         }
 
         return ResponseEntity.ok(

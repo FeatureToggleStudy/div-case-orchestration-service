@@ -26,7 +26,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Collections.singletonList;
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.AUTH_TOKEN;
@@ -108,7 +111,7 @@ public class OrchestrationControllerTest {
 
     @Test
     public void givenErrors_whenPetitionIssued_thenReturnErrorResponse() throws WorkflowException {
-        final List<String> expectedError = Collections.singletonList("Some error");
+        final List<String> expectedError = singletonList("Some error");
         final Map<String, Object> caseData =
             Collections.singletonMap(
                 VALIDATION_ERROR_KEY,
@@ -202,7 +205,7 @@ public class OrchestrationControllerTest {
         final Map<String, Object> caseData = Collections.emptyMap();
         final Map<String, Object> invalidResponse = Collections.singletonMap(
             VALIDATION_ERROR_KEY,
-            ValidationResponse.builder().build()
+            ValidationResponse.builder().errors(singletonList("foo")).build()
         );
 
         when(caseOrchestrationService.submit(caseData, AUTH_TOKEN)).thenReturn(invalidResponse);
@@ -210,6 +213,7 @@ public class OrchestrationControllerTest {
         ResponseEntity<CaseResponse> response = classUnderTest.submit(AUTH_TOKEN, caseData);
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertThat(response.getBody().getError(), is("foo"));
     }
 
     @Test
@@ -403,7 +407,7 @@ public class OrchestrationControllerTest {
             .build();
         final Map<String, Object> invalidResponse = Collections.singletonMap(
             SOLICITOR_VALIDATION_ERROR_KEY,
-            Collections.singletonList(ERROR_STATUS)
+            singletonList(ERROR_STATUS)
         );
 
         final CreateEvent createEvent = new CreateEvent();
@@ -414,7 +418,7 @@ public class OrchestrationControllerTest {
         ResponseEntity<CcdCallbackResponse> response = classUnderTest.processPbaPayment(AUTH_TOKEN, createEvent);
 
         CcdCallbackResponse expectedResponse = CcdCallbackResponse.builder()
-            .errors(Collections.singletonList(ERROR_STATUS))
+            .errors(singletonList(ERROR_STATUS))
             .build();
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
