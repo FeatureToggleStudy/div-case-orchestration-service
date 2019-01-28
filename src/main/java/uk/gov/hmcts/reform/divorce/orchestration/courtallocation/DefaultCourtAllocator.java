@@ -25,7 +25,7 @@ public class DefaultCourtAllocator implements CourtAllocator {
         //TODO - any good reasons for using Array not List?
         this.raffleTicketsPerCourt = Arrays.stream(courts)
                 .flatMap(this::returnAdequateAmountOfRaffleTicketsPerCourt)
-                .map(CourtWeight::getCourtName)
+                .map(CourtWeight::getCourtId)
                 .toArray(String[]::new);
     }
 
@@ -35,7 +35,7 @@ public class DefaultCourtAllocator implements CourtAllocator {
         //TODO - any good reasons for using Array not List?
         courtPerReasonForDivorce = Arrays.stream(courtAllocationsPerReason).collect(toMap(
             CourtAllocationPerReason::getDivorceReason,
-            CourtAllocationPerReason::getCourtName
+            CourtAllocationPerReason::getCourtId
         ));
     }
 

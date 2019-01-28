@@ -47,8 +47,8 @@ public class DefaultCourtAllocatorTest {
             BigDecimal expectedTimesCourtWasChosen = totalNumberOfAttempts.divide(sumOfWeightPoints, RoundingMode.CEILING).multiply(individualCourtWeight);
             BigDecimal acceptableError = acceptedDeviation.multiply(expectedTimesCourtWasChosen);
 
-            BigDecimal timesCourtWasChosen = courtsDistribution.get(courtWeight.getCourtName());//TODO - separate method?
-            assertThat(String.format("Court %s was not selected near enough times to how much it was expected to have been.", courtWeight.getCourtName()),
+            BigDecimal timesCourtWasChosen = courtsDistribution.get(courtWeight.getCourtId());//TODO - separate method?
+            assertThat(String.format("Court %s was not selected near enough times to how much it was expected to have been.", courtWeight.getCourtId()),
                     timesCourtWasChosen,
                     closeTo(expectedTimesCourtWasChosen, acceptableError));
         }

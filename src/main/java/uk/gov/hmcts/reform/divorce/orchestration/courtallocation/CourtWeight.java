@@ -1,5 +1,7 @@
 package uk.gov.hmcts.reform.divorce.orchestration.courtallocation;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 
 @Getter
@@ -11,11 +13,12 @@ import lombok.Getter;
  */
 public class CourtWeight {
 
-    private final String courtName;
+    private final String courtId;
     private final int weight;
 
-    public CourtWeight(String courtName, int weight) {//TODO weight needs to be positive or zero
-        this.courtName = courtName;
+    @JsonCreator
+    public CourtWeight(@JsonProperty("courtId") String courtId, @JsonProperty("weight") int weight) {//TODO weight needs to be positive or zero
+        this.courtId = courtId;
         this.weight = weight;
     }
 
