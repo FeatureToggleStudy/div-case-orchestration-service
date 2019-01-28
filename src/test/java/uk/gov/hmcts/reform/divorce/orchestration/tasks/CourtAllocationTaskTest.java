@@ -12,6 +12,7 @@ import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskCon
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -39,8 +40,8 @@ public class CourtAllocationTaskTest {
 
     @Before
     public void setUp(){
-        when(courtAllocator.selectCourtForGivenDivorceReason(eq("testReason"))).thenReturn("selectedCourtForReason");
-        when(courtAllocator.selectCourtRandomly()).thenReturn("randomlySelectedCourt");
+        when(courtAllocator.selectCourtForGivenDivorceReason(eq(Optional.of("testReason")))).thenReturn("selectedCourtForReason");
+        when(courtAllocator.selectCourtForGivenDivorceReason(Optional.empty())).thenReturn("randomlySelectedCourt");
 
         context = new DefaultTaskContext();
     }

@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Optional;
 
 import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.ZERO;
@@ -32,7 +33,7 @@ public class DefaultCourtAllocatorTest {
 
         HashMap<String, BigDecimal> courtsDistribution = new HashMap<>();
         for (int i = 0; i < totalNumberOfAttempts.intValue(); i++) {
-            String selectedCourt = courtAllocator.selectCourtRandomly();
+            String selectedCourt = courtAllocator.selectCourtForGivenDivorceReason(Optional.empty());
             BigDecimal casesPerCourt = courtsDistribution.getOrDefault(selectedCourt, ZERO);
             courtsDistribution.put(selectedCourt, casesPerCourt.add(ONE));
         }
@@ -67,9 +68,9 @@ public class DefaultCourtAllocatorTest {
                 }
         );
 
-        String courtForAdulteryReason = courtAllocator.selectCourtForGivenDivorceReason("adultery");
-        String courtForDesertionReason = courtAllocator.selectCourtForGivenDivorceReason("desertion");
-        String courtForUnreasonableBehaviourReason = courtAllocator.selectCourtForGivenDivorceReason("unreasonable-behaviour");
+        String courtForAdulteryReason = courtAllocator.selectCourtForGivenDivorceReason(Optional.of("adultery"));
+        String courtForDesertionReason = courtAllocator.selectCourtForGivenDivorceReason(Optional.of("desertion"));
+        String courtForUnreasonableBehaviourReason = courtAllocator.selectCourtForGivenDivorceReason(Optional.of("unreasonable-behaviour"));
 
         assertThat(courtForAdulteryReason, is("northWest"));
         assertThat(courtForDesertionReason, is("serviceCentre"));

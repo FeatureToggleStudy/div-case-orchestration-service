@@ -27,9 +27,7 @@ public class CourtAllocationTask implements Task<Map<String, Object>> {
         log.trace("Will select a court for case.");
 
         Optional<String> reasonForDivorce = Optional.ofNullable((String) payload.get("reasonForDivorce"));
-        String selectedCourt = reasonForDivorce
-                .map(courtAllocator::selectCourtForGivenDivorceReason)
-                .orElseGet(courtAllocator::selectCourtRandomly);
+        String selectedCourt = courtAllocator.selectCourtForGivenDivorceReason(reasonForDivorce);
 
         log.info("Court {} selected for case.", selectedCourt);//TODO - add case id to logs
 

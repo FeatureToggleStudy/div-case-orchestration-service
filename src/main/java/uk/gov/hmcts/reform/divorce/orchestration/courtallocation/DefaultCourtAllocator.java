@@ -2,10 +2,13 @@ package uk.gov.hmcts.reform.divorce.orchestration.courtallocation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toMap;
 
 public class DefaultCourtAllocator implements CourtAllocator {
 
@@ -14,7 +17,7 @@ public class DefaultCourtAllocator implements CourtAllocator {
      */
     private final String[] raffleTicketsPerCourt;
 
-    private Map<String, String> courtPerReasonForDivorce;
+    private Map<String, String> courtPerReasonForDivorce = new HashMap<>();
 
     private static final Random random = new Random();
 
@@ -30,22 +33,20 @@ public class DefaultCourtAllocator implements CourtAllocator {
         this(courts);
 
         //TODO - any good reasons for using Array not List?
-        courtPerReasonForDivorce = Arrays.stream(courtAllocationsPerReason).collect(Collectors.toMap(CourtAllocationPerReason::getDivorceReason, CourtAllocationPerReason::getCourtName));
+        courtPerReasonForDivorce = Arrays.stream(courtAllocationsPerReason).collect(toMap(
+            CourtAllocationPerReason::getDivorceReason,
+            CourtAllocationPerReason::getCourtName
+        ));
     }
 
     @Override
-    public String selectCourtForGivenDivorceReason(String reasonForDivorce) {//TODO - test with null reason
-        //TODO - use optional..
-        String selectedCourt = courtPerReasonForDivorce.getOrDefault(reasonForDivorce, null);//TODO - test calling this method without setting up the map (courtPerReasonForDivorce)
-        if (selectedCourt == null) {
-            selectedCourt = selectCourtRandomly();
-        }
-
-        return selectedCourt;
+    public String selectCourtForGivenDivorceReason(Optional<String> reasonForDivorce) {
+        return reasonForDivorce
+                .map(courtPerReasonForDivorce::get)
+                .orElseGet(this::selectCourtRandomly);
     }
 
-    @Override
-    public String selectCourtRandomly() {
+    private String selectCourtRandomly() {
         int randomIndex = random.nextInt(raffleTicketsPerCourt.length);
         return raffleTicketsPerCourt[randomIndex];
     }

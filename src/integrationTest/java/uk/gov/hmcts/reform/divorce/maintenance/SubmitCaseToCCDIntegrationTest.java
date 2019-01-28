@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.divorce.maintenance;
 
 import io.restassured.response.Response;
+import io.restassured.response.ResponseBody;
 import org.apache.http.entity.ContentType;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,13 +14,16 @@ import uk.gov.hmcts.reform.divorce.util.RestUtil;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsNot.not;
+import static org.hamcrest.core.IsNull.notNullValue;
+import static org.junit.Assert.assertThat;
 
 public class SubmitCaseToCCDIntegrationTest extends IntegrationTest {
 
     private static final String CASE_ID_KEY = "caseId";
     private static final String PAYLOAD_CONTEXT_PATH = "fixtures/maintenance/submit/";
+    private static final String ALLOCATED_COURT_ID_KEY = "allocatedCourt.courtId";
 
     @Value("${case.orchestration.maintenance.submit.context-path}")
     private String contextPath;
@@ -28,9 +32,10 @@ public class SubmitCaseToCCDIntegrationTest extends IntegrationTest {
     public void givenDivorceSession_whenSubmitIsCalled_caseIdIsReturned() throws Exception {
         Response submissionResponse = submitCase(createCitizenUser().getAuthToken(), "basic-divorce-session.json");
 
-        assertEquals(HttpStatus.OK.value(), submissionResponse.getStatusCode());
-        assertNotEquals("0", submissionResponse.getBody().path(CASE_ID_KEY));
-        //TODO - I have to return the selectedCourt
+        ResponseBody responseBody = submissionResponse.getBody();
+        assertThat(submissionResponse.getStatusCode(), is(HttpStatus.OK.value()));
+        assertThat(responseBody.path(CASE_ID_KEY), is(not("0")));
+        assertThat(responseBody.path(ALLOCATED_COURT_ID_KEY), is(notNullValue()));
     }
 
     private Response submitCase(String userToken, String fileName) throws Exception {
@@ -47,4 +52,5 @@ public class SubmitCaseToCCDIntegrationTest extends IntegrationTest {
                 fileName == null ? null : ResourceLoader.loadJson(PAYLOAD_CONTEXT_PATH + fileName)
         );
     }
+
 }
