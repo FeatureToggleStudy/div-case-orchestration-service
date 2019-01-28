@@ -4,12 +4,13 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 
 import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.ZERO;
+import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.isOneOf;
@@ -21,13 +22,13 @@ public class DefaultCourtAllocatorTest {
 
     @Test
     public void shouldApplyRandomWeightedSelectionToCourts() {
-        CourtWeight[] courts = new CourtWeight[]{
+        List<CourtWeight> courts = asList(
                 new CourtWeight("eastMidlands", 1),
                 new CourtWeight("westMidlands", 1),
                 new CourtWeight("southWest", 1),
                 new CourtWeight("northWest", 1),
                 new CourtWeight("serviceCentre", 2)
-        };
+        );
         CourtAllocator courtAllocator = new DefaultCourtAllocator(courts);
         BigDecimal totalNumberOfAttempts = new BigDecimal(1000000);
 
@@ -39,7 +40,8 @@ public class DefaultCourtAllocatorTest {
         }
 
         //Assert randomisation works as expected
-        BigDecimal sumOfWeightPoints = Arrays.stream(courts).map(CourtWeight::getWeight)//TODO - is there any good reason to have this as array, not List? - could make streams easier to use if it's a List
+        BigDecimal sumOfWeightPoints = courts.stream()
+                .map(CourtWeight::getWeight)
                 .map(BigDecimal::new)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
         for (CourtWeight courtWeight : courts) {
@@ -57,15 +59,15 @@ public class DefaultCourtAllocatorTest {
     @Test
     public void shouldAssignToSpecificCourtIfReasonForDivorceIsSpecified_OrRandomlyChoseCourtsForUnspecifiedReasons() {
         CourtAllocator courtAllocator = new DefaultCourtAllocator(
-                new CourtAllocationPerReason[]{
+                asList(
                         new CourtAllocationPerReason("northWest", "adultery"),
                         new CourtAllocationPerReason("serviceCentre", "desertion")//TODO - should I check for no court repetition?
-                },
-                new CourtWeight[]{
+                ),
+                asList(
                         new CourtWeight("eastMidlands", 1),
                         new CourtWeight("westMidlands", 1),
                         new CourtWeight("southWest", 1)
-                }
+                )
         );
 
         String courtForAdulteryReason = courtAllocator.selectCourtForGivenDivorceReason(Optional.of("adultery"));

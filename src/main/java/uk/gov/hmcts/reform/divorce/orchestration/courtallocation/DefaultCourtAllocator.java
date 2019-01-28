@@ -1,8 +1,8 @@
 package uk.gov.hmcts.reform.divorce.orchestration.courtallocation;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
@@ -21,19 +21,18 @@ public class DefaultCourtAllocator implements CourtAllocator {
 
     private static final Random random = new Random();
 
-    public DefaultCourtAllocator(CourtWeight[] courts) {//TODO - varargs?
+    public DefaultCourtAllocator(List<CourtWeight> courts) {
         //TODO - any good reasons for using Array not List?
-        this.raffleTicketsPerCourt = Arrays.stream(courts)
+        this.raffleTicketsPerCourt = courts.stream()
                 .flatMap(this::returnAdequateAmountOfRaffleTicketsPerCourt)
                 .map(CourtWeight::getCourtId)
                 .toArray(String[]::new);
     }
 
-    public DefaultCourtAllocator(CourtAllocationPerReason[] courtAllocationsPerReason, CourtWeight[] courts) {
+    public DefaultCourtAllocator(List<CourtAllocationPerReason> courtAllocationsPerReason, List<CourtWeight> courts) {
         this(courts);
 
-        //TODO - any good reasons for using Array not List?
-        courtPerReasonForDivorce = Arrays.stream(courtAllocationsPerReason).collect(toMap(
+        courtPerReasonForDivorce = courtAllocationsPerReason.stream().collect(toMap(
             CourtAllocationPerReason::getDivorceReason,
             CourtAllocationPerReason::getCourtId
         ));

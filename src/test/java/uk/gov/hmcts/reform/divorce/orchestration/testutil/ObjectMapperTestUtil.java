@@ -30,6 +30,6 @@ public class ObjectMapperTestUtil {
                      ObjectMapperTestUtil.class.getResourceAsStream(filePath)) {
             return objectMapper.readValue(resourceAsStream, clazz);
         }
-    }//TODO - can I remove this version?
+    }
 
 }
