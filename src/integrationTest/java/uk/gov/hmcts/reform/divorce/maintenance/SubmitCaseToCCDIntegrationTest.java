@@ -30,7 +30,22 @@ public class SubmitCaseToCCDIntegrationTest extends RetrieveCaseSupport {
     private String caseCreationContextPath;
 
     @Test
-    public void givenDivorceSession_whenSubmitIsCalled_caseIdIsReturned() throws Exception {
+    public void givenDivorceSession_WithNoCourt_whenSubmitIsCalled_CaseIsCreated() throws Exception {
+        String userToken = createCitizenUser().getAuthToken();
+        Response submissionResponse = submitCase(userToken, "divorce-session-with-court-selected.json");
+
+        ResponseBody caseCreationResponseBody = submissionResponse.getBody();
+        assertThat(submissionResponse.getStatusCode(), is(HttpStatus.OK.value()));
+        assertThat(caseCreationResponseBody.path(CASE_ID_KEY), is(not("0")));
+        String allocatedCourt = caseCreationResponseBody.path(ALLOCATED_COURT_ID_KEY);
+        assertThat(allocatedCourt, is(notNullValue()));
+
+        ResponseBody retrieveCaseResponseBody = retrieveCase(userToken).body();
+        assertThat(retrieveCaseResponseBody.path(RETRIEVED_DATA_COURT_ID_KEY), is(allocatedCourt));
+    }
+
+    @Test
+    public void givenDivorceSession_WithCourt_whenSubmitIsCalled_CaseIsCreated_AndCourtIsIgnored() throws Exception {
         String userToken = createCitizenUser().getAuthToken();
         Response submissionResponse = submitCase(userToken, "basic-divorce-session.json");
 
