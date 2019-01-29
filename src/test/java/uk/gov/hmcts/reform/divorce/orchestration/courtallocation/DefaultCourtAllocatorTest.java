@@ -1,6 +1,8 @@
 package uk.gov.hmcts.reform.divorce.orchestration.courtallocation;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -15,10 +17,14 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.isOneOf;
 import static org.hamcrest.core.Is.is;
+import static org.junit.rules.ExpectedException.none;
 
 public class DefaultCourtAllocatorTest {
 
     private final BigDecimal acceptedDeviation = new BigDecimal("0.005");
+
+    @Rule
+    public ExpectedException expectedException = none();
 
     @Test
     public void shouldApplyRandomWeightedSelectionToCourts() {
@@ -30,8 +36,9 @@ public class DefaultCourtAllocatorTest {
                 new CourtWeight("serviceCentre", 2)
         );
         CourtAllocator courtAllocator = new DefaultCourtAllocator(courts);
-        BigDecimal totalNumberOfAttempts = new BigDecimal(1000000);
 
+        //Select court 1 million times
+        BigDecimal totalNumberOfAttempts = new BigDecimal(1000000);
         HashMap<String, BigDecimal> courtsDistribution = new HashMap<>();
         for (int i = 0; i < totalNumberOfAttempts.intValue(); i++) {
             String selectedCourt = courtAllocator.selectCourtForGivenDivorceReason(Optional.empty());
@@ -49,7 +56,7 @@ public class DefaultCourtAllocatorTest {
             BigDecimal expectedTimesCourtWasChosen = totalNumberOfAttempts.divide(sumOfWeightPoints, RoundingMode.CEILING).multiply(individualCourtWeight);
             BigDecimal acceptableError = acceptedDeviation.multiply(expectedTimesCourtWasChosen);
 
-            BigDecimal timesCourtWasChosen = courtsDistribution.get(courtWeight.getCourtId());//TODO - separate method?
+            BigDecimal timesCourtWasChosen = courtsDistribution.get(courtWeight.getCourtId());
             assertThat(String.format("Court %s was not selected near enough times to how much it was expected to have been.", courtWeight.getCourtId()),
                     timesCourtWasChosen,
                     closeTo(expectedTimesCourtWasChosen, acceptableError));
@@ -61,7 +68,7 @@ public class DefaultCourtAllocatorTest {
         CourtAllocator courtAllocator = new DefaultCourtAllocator(
                 asList(
                         new CourtAllocationPerReason("northWest", "adultery"),
-                        new CourtAllocationPerReason("serviceCentre", "desertion")//TODO - should I check for no court repetition?
+                        new CourtAllocationPerReason("serviceCentre", "desertion")
                 ),
                 asList(
                         new CourtWeight("eastMidlands", 1),
@@ -77,6 +84,23 @@ public class DefaultCourtAllocatorTest {
         assertThat(courtForAdulteryReason, is("northWest"));
         assertThat(courtForDesertionReason, is("serviceCentre"));
         assertThat(courtForUnreasonableBehaviourReason, isOneOf("eastMidlands", "westMidlands", "southWest"));
+    }
+
+    @Test
+    public void shouldThrowExceptionIfReasonIsDuplicate_InAllocationPerReason() {
+        expectedException.expect(IllegalStateException.class);
+
+        new DefaultCourtAllocator(
+                asList(
+                        new CourtAllocationPerReason("northWest", "adultery"),
+                        new CourtAllocationPerReason("southWest", "adultery")
+                ),
+                asList(
+                        new CourtWeight("eastMidlands", 1),
+                        new CourtWeight("westMidlands", 1),
+                        new CourtWeight("southWest", 1)
+                )
+        );
     }
 
 }

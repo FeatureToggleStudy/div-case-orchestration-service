@@ -25,7 +25,7 @@ public class CourtAllocationConfigurationTest {
     private final CourtAllocationConfiguration courtAllocationConfiguration = new CourtAllocationConfiguration();
 
     @Test
-    public void shouldBuildObjectFromJsonFile() throws IOException, URISyntaxException {
+    public void shouldBuildObjectFromJsonFile() throws IOException, URISyntaxException {//TODO - should it be a separate test class?
         URI uri = CourtAllocationConfigurationTest.class.getResource("/courtAllocation/config-with-court-weight-and-reasons.json").toURI();
         String json = Files.lines(Paths.get(uri)).collect(Collectors.joining());
         //TODO - should this be a spring boot test? This way, I can test only the result

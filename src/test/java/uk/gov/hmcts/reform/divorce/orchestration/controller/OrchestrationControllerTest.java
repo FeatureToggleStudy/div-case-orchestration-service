@@ -199,7 +199,6 @@ public class OrchestrationControllerTest {
                 .build();
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(expectedResponse, response.getBody());
-        //TODO - test json output on integration test
     }
 
     @Test

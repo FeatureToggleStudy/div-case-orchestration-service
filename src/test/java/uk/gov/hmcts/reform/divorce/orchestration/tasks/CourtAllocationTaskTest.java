@@ -36,8 +36,6 @@ public class CourtAllocationTaskTest {
 
     private TaskContext context;
 
-    //TODO - test configuration from environment variable
-
     @Before
     public void setUp(){
         when(courtAllocator.selectCourtForGivenDivorceReason(eq(Optional.of("testReason")))).thenReturn("selectedCourtForReason");
@@ -45,10 +43,6 @@ public class CourtAllocationTaskTest {
 
         context = new DefaultTaskContext();
     }
-
-    //TODO - test that court info also ends up in context
-
-    //TODO - refactor
 
     @Test
     public void shouldReturnSelectedCourtAsPartOfOutgoingMap_AndCourtInfoIsWrittenToTaskContext() {

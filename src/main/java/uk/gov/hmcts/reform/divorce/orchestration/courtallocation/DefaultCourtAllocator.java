@@ -22,7 +22,6 @@ public class DefaultCourtAllocator implements CourtAllocator {
     private static final Random random = new Random();
 
     public DefaultCourtAllocator(List<CourtWeight> courts) {
-        //TODO - any good reasons for using Array not List?
         this.raffleTicketsPerCourt = courts.stream()
                 .flatMap(this::returnAdequateAmountOfRaffleTicketsPerCourt)
                 .map(CourtWeight::getCourtId)
