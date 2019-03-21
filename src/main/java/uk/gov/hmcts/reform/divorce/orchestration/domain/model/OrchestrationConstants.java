@@ -91,6 +91,9 @@ public class OrchestrationConstants {
     public static final String CO_RESPONDENT_LETTER_HOLDER_ID = "CoRespLetterHolderId";
     public static final String CO_RESP_EMAIL_ADDRESS = "CoRespEmailAddress";
     public static final String CO_RESP_DEFENDS_DIVORCE = "CoRespDefendsDivorce";
+    public static final String CO_RESP_ADMITS_ADULTERY = "CoRespAdmitAdultery";
+    public static final String CO_RESP_AGREES_TO_COSTS = "CoRespAgreeToCosts";
+    public static final String CO_RESP_COSTS_REASON = "CoRespCostsReason";
     public static final String RECEIVED_AOS_FROM_CO_RESP = "ReceivedAosFromCoResp";
     public static final String RECEIVED_AOS_FROM_CO_RESP_DATE = "ReceivedAosFromCoRespDate";
     public static final String D8_REASON_FOR_DIVORCE_ADULTERY_3RD_PARTY_FNAME = "D8ReasonForDivorceAdultery3rdPartyFName";
@@ -152,6 +155,9 @@ public class OrchestrationConstants {
     public static final String DOCUMENT_TYPE_CO_RESPONDENT_INVITATION = "aoscr";
     public static final String CO_RESPONDENT_INVITATION_FILE_NAME_FORMAT = "co-respondentaosinvitation%s";
     public static final String CO_RESPONDENT_INVITATION_TEMPLATE_NAME = "co-respondentinvitation";
+    public static final String DOCUMENT_TYPE_CO_RESPONDENT_ANSWERS_REPORT = "TBC";
+    public static final String CO_RESPONDENT_ANSWERS_REPORT_FILE_NAME_FORMAT = "co-respondentanswers%s";
+    public static final String CO_RESPONDENT_ANSWERS_REPORT_TEMPLATE_NAME = "co-respondentanswers";
     public static final String PETITION_ISSUE_FEE_FOR_LETTER = "petitionIssueFee";
 
     // Fees

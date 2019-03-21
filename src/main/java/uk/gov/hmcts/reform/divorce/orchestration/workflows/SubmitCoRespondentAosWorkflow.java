@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.DefaultWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowException;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.Task;
+import uk.gov.hmcts.reform.divorce.orchestration.tasks.CoRespondentAnswersReportGenerator;
 import uk.gov.hmcts.reform.divorce.orchestration.tasks.FormatDivorceSessionToAosCaseData;
 import uk.gov.hmcts.reform.divorce.orchestration.tasks.SubmitCoRespondentAosCase;
 
@@ -18,12 +19,16 @@ public class SubmitCoRespondentAosWorkflow extends DefaultWorkflow<Map<String, O
 
     private final FormatDivorceSessionToAosCaseData formatDivorceSessionToAosCaseData;
 
+    private final CoRespondentAnswersReportGenerator coRespondentAnswersReportGenerator;
+
     private final SubmitCoRespondentAosCase submitCoRespondentAosCaseTask;
 
     @Autowired
     public SubmitCoRespondentAosWorkflow(final FormatDivorceSessionToAosCaseData formatDivorceSessionToAosCaseData,
+                                         final CoRespondentAnswersReportGenerator coRespondentAnswersReportGenerator,
                                          final SubmitCoRespondentAosCase submitCoRespondentAosCaseTask) {
         this.formatDivorceSessionToAosCaseData = formatDivorceSessionToAosCaseData;
+        this.coRespondentAnswersReportGenerator = coRespondentAnswersReportGenerator;
         this.submitCoRespondentAosCaseTask = submitCoRespondentAosCaseTask;
     }
 
@@ -31,6 +36,7 @@ public class SubmitCoRespondentAosWorkflow extends DefaultWorkflow<Map<String, O
         return this.execute(
             new Task[] {
                 formatDivorceSessionToAosCaseData,
+                coRespondentAnswersReportGenerator,
                 submitCoRespondentAosCaseTask
             },
             divorceSession,
