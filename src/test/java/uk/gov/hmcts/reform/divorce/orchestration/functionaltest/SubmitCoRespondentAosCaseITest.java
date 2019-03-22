@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.divorce.orchestration.functionaltest;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import com.github.tomakehurst.wiremock.matching.EqualToPattern;
 import com.google.common.collect.ImmutableMap;
@@ -20,12 +21,16 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import uk.gov.hmcts.reform.divorce.orchestration.OrchestrationServiceApplication;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseDetails;
+import uk.gov.hmcts.reform.divorce.orchestration.domain.model.documentgeneration.DocumentUpdateRequest;
+import uk.gov.hmcts.reform.divorce.orchestration.domain.model.documentgeneration.GenerateDocumentRequest;
+import uk.gov.hmcts.reform.divorce.orchestration.domain.model.documentgeneration.GeneratedDocumentInfo;
 import uk.gov.hmcts.reform.divorce.orchestration.util.CcdUtil;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -35,6 +40,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static java.time.ZoneOffset.UTC;
 import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonMap;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.Mockito.when;
@@ -50,9 +56,16 @@ import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.AUTH_TOKEN
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_CASE_ID;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.TEST_ERROR;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.AOS_AWAITING;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.CO_RESPONDENT_ANSWERS_REPORT_FILE_NAME_FORMAT;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.CO_RESPONDENT_ANSWERS_REPORT_TEMPLATE_NAME;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.CO_RESPONDENT_DEFENDS_DIVORCE;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.CO_RESPONDENT_DUE_DATE;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.CO_RESPONDENT_SUBMISSION_AOS_AWAITING_EVENT_ID;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.DOCUMENT_CASE_DETAILS_JSON_KEY;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.DOCUMENT_TYPE_CO_RESPONDENT_ANSWERS_REPORT;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.DOCUMENT_TYPE_PETITION;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.MINI_PETITION_FILE_NAME_FORMAT;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.MINI_PETITION_TEMPLATE_NAME;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.RECEIVED_AOS_FROM_CO_RESP;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.RECEIVED_AOS_FROM_CO_RESP_DATE;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.YES_VALUE;
@@ -69,6 +82,8 @@ public class SubmitCoRespondentAosCaseITest {
     private static final String FORMAT_TO_AOS_CASE_CONTEXT_PATH = "/caseformatter/version/1/to-aos-submit-format";
     private static final String UPDATE_CONTEXT_PATH = "/casemaintenance/version/1/updateCase/" + TEST_CASE_ID + "/";
     private static final String RETRIEVE_CASE_CONTEXT_PATH = "/casemaintenance/version/1/retrieveAosCase?checkCcd=true";
+    private static final String GENERATE_DOCUMENT_CONTEXT_PATH = "/version/1/generatePDF";
+
 
     @Autowired
     private MockMvc webClient;
@@ -81,6 +96,9 @@ public class SubmitCoRespondentAosCaseITest {
 
     @ClassRule
     public static WireMockClassRule maintenanceServiceServer = new WireMockClassRule(4010);
+
+    @ClassRule
+    public static WireMockClassRule documentGeneratorServiceServer = new WireMockClassRule(4007);
 
     @Test
     public void givenNoAuthToken_whenSubmitCoRespondentAos_thenReturnBadRequest() throws Exception {
@@ -173,6 +191,26 @@ public class SubmitCoRespondentAosCaseITest {
         final CaseDetails caseDetails = CaseDetails.builder().caseId(TEST_CASE_ID).state(AOS_AWAITING).build();
         stubMaintenanceServerEndpointForAosRetrieval(OK, convertObjectToJsonString(caseDetails));
 
+        final GenerateDocumentRequest generateAosAnswersReportRequest =
+            GenerateDocumentRequest.builder()
+                .template(CO_RESPONDENT_ANSWERS_REPORT_TEMPLATE_NAME)
+                .values(singletonMap(DOCUMENT_CASE_DETAILS_JSON_KEY, CASE_DETAILS))
+                .build();
+
+        final GeneratedDocumentInfo generateAosAnswersReportResponse =
+            GeneratedDocumentInfo.builder()
+                .documentType(DOCUMENT_TYPE_CO_RESPONDENT_ANSWERS_REPORT)
+                .fileName(String.format(CO_RESPONDENT_ANSWERS_REPORT_FILE_NAME_FORMAT, TEST_CASE_ID))
+                .build();
+
+        final DocumentUpdateRequest documentUpdateRequest =
+            DocumentUpdateRequest.builder()
+                .documents(Collections.singletonList(generateAosAnswersReportResponse))
+                .caseData(CASE_DATA)
+                .build();
+
+        stubDocumentGeneratorServerEndpoint(generateAosAnswersReportRequest, generateAosAnswersReportResponse, OK);
+
         stubMaintenanceServerEndpointForAosUpdate(OK, getCoRespondentSubmitData(), caseDataString);
 
         webClient.perform(MockMvcRequestBuilders.post(API_URL)
@@ -249,5 +287,16 @@ public class SubmitCoRespondentAosCaseITest {
                 .withStatus(status.value())
                 .withHeader(CONTENT_TYPE, APPLICATION_JSON_UTF8_VALUE)
                 .withBody(response)));
+    }
+
+    private void stubDocumentGeneratorServerEndpoint(final GenerateDocumentRequest generateDocumentRequest, final GeneratedDocumentInfo response,
+                                                     final HttpStatus status) {
+        documentGeneratorServiceServer.stubFor(WireMock.post(GENERATE_DOCUMENT_CONTEXT_PATH)
+            .withRequestBody(equalToJson(convertObjectToJsonString(generateDocumentRequest)))
+            .withHeader(AUTHORIZATION, new EqualToPattern(AUTH_TOKEN))
+            .willReturn(aResponse()
+                .withHeader(CONTENT_TYPE, APPLICATION_JSON_UTF8_VALUE)
+                .withStatus(status.value())
+                .withBody(convertObjectToJsonString(response))));
     }
 }
