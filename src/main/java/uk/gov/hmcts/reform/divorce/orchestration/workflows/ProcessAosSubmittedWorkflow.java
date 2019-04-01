@@ -20,7 +20,7 @@ import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.Orchestrati
 
 @Component
 @Slf4j
-public class SendRespondentSubmissionNotificationWorkflow extends DefaultWorkflow<Map<String, Object>> {
+public class ProcessAosSubmittedWorkflow extends DefaultWorkflow<Map<String, Object>> {
 
     @Autowired
     private SendRespondentSubmissionNotificationForDefendedDivorceEmail
@@ -34,12 +34,13 @@ public class SendRespondentSubmissionNotificationWorkflow extends DefaultWorkflo
         Map<String, Object> caseData = ccdCallbackRequest.getCaseDetails().getCaseData();
         String defended = (String)caseData.get(RESP_WILL_DEFEND_DIVORCE);
 
-        Task[] tasks;
+        Task[] tasks = new Task[2];
+        // tasks[0] = generateRespondentAnswersPdf;
 
         if (YES_VALUE.equalsIgnoreCase(defended)) {
-            tasks = new Task[]{sendRespondentSubmissionNotificationForDefendedDivorceEmailTask};
+            tasks[1] = sendRespondentSubmissionNotificationForDefendedDivorceEmailTask;
         } else if (NO_VALUE.equalsIgnoreCase(defended)) {
-            tasks = new Task[]{sendRespondentSubmissionNotificationForUndefendedDivorceEmailTask};
+            tasks[1] = sendRespondentSubmissionNotificationForUndefendedDivorceEmailTask;
         } else {
             String errorMessage = String.format("%s field doesn't contain a valid value: %s",
                 RESP_WILL_DEFEND_DIVORCE, defended);

@@ -357,7 +357,7 @@ public class OrchestrationController {
         Map<String, Object> returnedCaseData;
 
         try {
-            returnedCaseData = orchestrationService.sendRespondentSubmissionNotificationEmail(ccdCallbackRequest);
+            returnedCaseData = orchestrationService.aosSubmittedProcess(ccdCallbackRequest);
         } catch (WorkflowException e) {
             return ResponseEntity.ok(CcdCallbackResponse.builder()
                 .errors(singletonList(e.getMessage()))

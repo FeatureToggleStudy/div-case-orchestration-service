@@ -51,7 +51,7 @@ public interface CaseOrchestrationService {
     Map<String, Object> sendPetitionerGenericUpdateNotificationEmail(CcdCallbackRequest ccdCallbackRequest)
             throws WorkflowException;
 
-    Map<String, Object> sendRespondentSubmissionNotificationEmail(CcdCallbackRequest ccdCallbackRequest)
+    Map<String, Object> aosSubmittedProcess(CcdCallbackRequest ccdCallbackRequest)
             throws WorkflowException;
 
     Map<String, Object> setOrderSummary(CcdCallbackRequest ccdCallbackRequest) throws WorkflowException;

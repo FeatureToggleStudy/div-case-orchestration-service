@@ -159,6 +159,7 @@ public class OrchestrationConstants {
     public static final String CO_RESPONDENT_INVITATION_FILE_NAME_FORMAT = "co-respondentaosinvitation%s";
     public static final String CO_RESPONDENT_INVITATION_TEMPLATE_NAME = "co-respondentinvitation";
     public static final String PETITION_ISSUE_FEE_FOR_LETTER = "petitionIssueFee";
+    public static final String RESPONDENT_ANSWERS = "respondentAnswers";
 
     // Fees
     public static final String CURRENCY = "GBP";

@@ -36,7 +36,7 @@ import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.Orchestrati
 import static uk.gov.hmcts.reform.divorce.orchestration.testutil.ObjectMapperTestUtil.getJsonFromResourceFile;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SendRespondentSubmissionNotificationWorkflowTest {
+public class ProcessAosSubmittedWorkflowTest {
 
     private static final String UNFORMATTED_CASE_ID = "0123456789012345";
 
@@ -55,7 +55,7 @@ public class SendRespondentSubmissionNotificationWorkflowTest {
     private ArgumentCaptor<TaskContext> taskContextArgumentCaptor;
 
     @InjectMocks
-    private SendRespondentSubmissionNotificationWorkflow workflow;
+    private ProcessAosSubmittedWorkflow workflow;
 
     @Before
     public void setUp() throws TaskException {
