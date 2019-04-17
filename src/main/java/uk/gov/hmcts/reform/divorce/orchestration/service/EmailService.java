@@ -1,11 +1,9 @@
 package uk.gov.hmcts.reform.divorce.orchestration.service;
 
 import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import uk.gov.hmcts.reform.divorce.orchestration.client.EmailClient;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.email.EmailTemplateNames;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.email.EmailToSend;
@@ -84,6 +82,12 @@ public class EmailService {
                 "resp does not consent to 2 year separation update notification");
     }
 
+    public Map<String, Object> sendPetitionerClarificationRequestEmail(final String destinationAddress, final Map<String, String> templateVars) {
+        String templateName = EmailTemplateNames.PETITIONER_CLARIFICATION_REQUEST_EMAIL_NOTIFICATION.name();
+        EmailToSend emailToSend = generateEmail(destinationAddress, templateName, templateVars);
+        return sendEmailAndReturnErrorsInResponse(emailToSend,"clarification requested by LA from petitioner email notification");
+    }
+
     public void sendEmail(EmailTemplateNames emailTemplate,
                           String destinationAddress,
                           Map<String, String> templateParameters) throws NotificationClientException {
@@ -102,7 +106,7 @@ public class EmailService {
     }
 
     private void sendEmail(EmailToSend emailToSend, String emailDescription) throws NotificationClientException {
-        log.debug("Attempting to send {} email. Reference ID: {}", emailDescription, emailToSend.getReferenceId());
+        log.info("Attempting to send {} email. Reference ID: {}", emailDescription, emailToSend.getReferenceId());
         emailClient.sendEmail(
                 emailToSend.getTemplateId(),
                 emailToSend.getDestinationEmailAddress(),
