@@ -1,9 +1,3 @@
 Changes made to spreadsheet so far—
-CaseEvent : 150
-ChangeHistory : 216
-CaseEventToFields : 524, 525, 526, 527
-AuthorizationCaseField : 78, 590, 1029-1031
-AuthorizationCaseEvent : 264
-CaseField : 350, 351
-AuthorizationCaseType : 9
-AuthorizationCaseState : 94-102
+
+ChangeHistory: 221
