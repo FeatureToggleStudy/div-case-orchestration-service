@@ -59,6 +59,7 @@ public class DecreeNisiAboutToBeGrantedTest {
                 hasJsonPath(CCD_RESPONSE_DATA_FIELD, allOf(
                     hasJsonPath(DECREE_NISI_GRANTED_CCD_FIELD, equalTo(YES_VALUE)),
                     hasJsonPath(STATE_CCD_FIELD, equalTo(AWAITING_PRONOUNCEMENT)),
+                    hasJsonPath("WhoPaysCosts", equalTo("respondent")),
                     hasJsonPath(DN_APPROVAL_DATE_FIELD, equalTo(ccdUtil.getCurrentDateCcdFormat()))
                 ))
             )));
@@ -79,6 +80,7 @@ public class DecreeNisiAboutToBeGrantedTest {
                 hasJsonPath(CCD_RESPONSE_DATA_FIELD, allOf(
                     hasJsonPath(DECREE_NISI_GRANTED_CCD_FIELD, equalTo(NO_VALUE)),
                     hasJsonPath(STATE_CCD_FIELD, equalTo(AWAITING_CLARIFICATION)),
+                    hasNoJsonPath("WhoPaysCosts"),
                     hasNoJsonPath(DN_APPROVAL_DATE_FIELD)
                 ))
             )));
