@@ -41,7 +41,7 @@ public class DecreeNisiAboutToBeGrantedWorkflowTest {
     private AddDecreeNisiApprovalDateTask addDecreeNisiApprovalDateTask;
 
     @Mock
-    private DefineWhoPaysCostsOrderTask defineWhoPaysCostsOrderTask;//TODO - put logic inside task
+    private DefineWhoPaysCostsOrderTask defineWhoPaysCostsOrderTask;
 
     @InjectMocks
     private DecreeNisiAboutToBeGrantedWorkflow workflow;

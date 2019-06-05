@@ -62,6 +62,7 @@ public class OrchestrationConstants {
     public static final String DIVORCE_COSTS_CLAIM_GRANTED_CCD_FIELD = "CostsClaimGranted";
     public static final String DATETIME_OF_HEARING_CCD_FIELD = "DateAndTimeOfHearing";
     public static final String DECREE_NISI_GRANTED_CCD_FIELD = "DecreeNisiGranted";
+    public static final String WHO_PAYS_COSTS_CCD_FIELD = "WhoPaysCosts";
     public static final String DATE_OF_HEARING_CCD_FIELD = "DateOfHearing";
     public static final String TIME_OF_HEARING_CCD_FIELD = "TimeOfHearing";
     public static final String YES_VALUE = "Yes";
