@@ -3,7 +3,6 @@ package uk.gov.hmcts.reform.divorce.maintenance;
 import io.restassured.response.Response;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.http.entity.ContentType;
-import org.joda.time.LocalDate;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -14,6 +13,8 @@ import uk.gov.hmcts.reform.divorce.model.UserDetails;
 import uk.gov.hmcts.reform.divorce.support.RetrieveAosCaseSupport;
 import uk.gov.hmcts.reform.divorce.util.RestUtil;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,18 +24,20 @@ import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.Orchestrati
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.CO_RESP_EMAIL_ADDRESS;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.CO_RESP_LINKED_TO_CASE;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.CO_RESP_LINKED_TO_CASE_DATE;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.RECEIVED_AOS_FROM_RESP;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.RECEIVED_AOS_FROM_RESP_DATE;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.RESPONDENT_EMAIL_ADDRESS;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.YES_VALUE;
 import static uk.gov.hmcts.reform.divorce.util.DateConstants.CCD_DATE_FORMAT;
 
 public class LinkRespondentTest extends RetrieveAosCaseSupport {
     private static final String PIN_USER_FIRST_NAME = "pinuserfirstname";
     private static final String PIN_USER_LAST_NAME = "pinuserfirstname";
-    private static final String RESPONDENT_EMAIL_ADDRESS = "RespEmailAddress";
-    private static final String RECEIVED_AOS_FROM_RESP = "ReceivedAOSfromResp";
-    private static final String RECEIVED_AOS_FROM_RESP_DATE = "ReceivedAOSfromRespDate";
-    private static final String YES_VALUE = "Yes";
     private static final String PAYMENT_REFERENCE_EVENT = "paymentReferenceGenerated";
     private static final String TEST_AOS_AWAITING_EVENT = "testAosAwaiting";
     private static final String AOS_LETTER_HOLDER_ID = "AosLetterHolderId";
+    private static final String SUBMIT_COMPLETE_CASE_JSON_FILE_PATH = "submit-complete-case.json";
+    private static final String SUBMIT_UNLINKED_CASE_JSON_FILE_PATH = "submit-unlinked-case.json";
 
     @Value("${case.orchestration.maintenance.link-respondent.context-path}")
     private String contextPath;
@@ -50,7 +53,7 @@ public class LinkRespondentTest extends RetrieveAosCaseSupport {
     public void givenInvalidPin_whenLinkRespondent_thenReturnUnAuthorised() {
         final UserDetails petitionerUserDetails = createCitizenUser();
         final CaseDetails caseDetails = submitCase(
-            "submit-complete-case.json",
+            SUBMIT_COMPLETE_CASE_JSON_FILE_PATH,
             petitionerUserDetails
         );
 
@@ -82,7 +85,7 @@ public class LinkRespondentTest extends RetrieveAosCaseSupport {
                 petitionerUserDetails.getAuthToken());
 
         final CaseDetails caseDetails = submitCase(
-            "submit-complete-case.json",
+            SUBMIT_COMPLETE_CASE_JSON_FILE_PATH,
             petitionerUserDetails
         );
 
@@ -101,7 +104,7 @@ public class LinkRespondentTest extends RetrieveAosCaseSupport {
                 petitionerUserDetails.getAuthToken());
 
         final CaseDetails caseDetails = submitCase(
-            "submit-unlinked-case.json",
+            SUBMIT_UNLINKED_CASE_JSON_FILE_PATH,
             petitionerUserDetails);
 
         updateCase(String.valueOf(caseDetails.getId()),
@@ -124,11 +127,8 @@ public class LinkRespondentTest extends RetrieveAosCaseSupport {
             );
 
         assertEquals(HttpStatus.OK.value(), linkResponse.getStatusCode());
-
         Response caseResponse = retrieveAosCase(respondentUserDetails.getAuthToken());
-
         assertEquals(String.valueOf(caseDetails.getId()), caseResponse.path(CASE_ID_KEY));
-
         assertCaseDetailsRespondent(respondentUserDetails, String.valueOf(caseDetails.getId()));
     }
 
@@ -141,7 +141,7 @@ public class LinkRespondentTest extends RetrieveAosCaseSupport {
                 petitionerUserDetails.getAuthToken());
 
         final CaseDetails caseDetails = submitCase(
-            "submit-unlinked-case.json",
+            SUBMIT_UNLINKED_CASE_JSON_FILE_PATH,
             petitionerUserDetails);
 
         updateCase(String.valueOf(caseDetails.getId()),
@@ -165,11 +165,8 @@ public class LinkRespondentTest extends RetrieveAosCaseSupport {
             );
 
         assertEquals(HttpStatus.OK.value(), linkResponse.getStatusCode());
-
         Response caseResponse = retrieveAosCase(respondentUserDetails.getAuthToken());
-
         assertEquals(String.valueOf(caseDetails.getId()), caseResponse.path(CASE_ID_KEY));
-
         assertCaseDetailsRespondent(respondentUserDetails, String.valueOf(caseDetails.getId()));
     }
 
@@ -182,7 +179,7 @@ public class LinkRespondentTest extends RetrieveAosCaseSupport {
                 petitionerUserDetails.getAuthToken());
 
         final CaseDetails caseDetails = submitCase(
-            "submit-unlinked-case.json",
+            SUBMIT_UNLINKED_CASE_JSON_FILE_PATH,
             petitionerUserDetails);
 
         updateCase(String.valueOf(caseDetails.getId()),
@@ -205,11 +202,8 @@ public class LinkRespondentTest extends RetrieveAosCaseSupport {
             );
 
         assertEquals(HttpStatus.OK.value(), linkResponse.getStatusCode());
-
         Response caseResponse = retrieveAosCase(coRespondentUserDetails.getAuthToken());
-
         assertEquals(String.valueOf(caseDetails.getId()), caseResponse.path(CASE_ID_KEY));
-
         assertCaseDetailsCoRespondent(coRespondentUserDetails, String.valueOf(caseDetails.getId()));
     }
 
@@ -222,7 +216,7 @@ public class LinkRespondentTest extends RetrieveAosCaseSupport {
                 petitionerUserDetails.getAuthToken());
 
         final CaseDetails caseDetails = submitCase(
-            "submit-unlinked-case.json",
+            SUBMIT_UNLINKED_CASE_JSON_FILE_PATH,
             petitionerUserDetails);
 
         updateCase(String.valueOf(caseDetails.getId()),
@@ -245,11 +239,8 @@ public class LinkRespondentTest extends RetrieveAosCaseSupport {
             );
 
         assertEquals(HttpStatus.OK.value(), linkResponse.getStatusCode());
-
         Response caseResponse = retrieveAosCase(coRespondentUserDetails.getAuthToken());
-
         assertEquals(String.valueOf(caseDetails.getId()), caseResponse.path(CASE_ID_KEY));
-
         assertCaseDetailsCoRespondent(coRespondentUserDetails, String.valueOf(caseDetails.getId()));
 
         linkResponse =
@@ -260,7 +251,6 @@ public class LinkRespondentTest extends RetrieveAosCaseSupport {
             );
 
         assertEquals(HttpStatus.OK.value(), linkResponse.getStatusCode());
-
     }
 
     private void assertCaseDetailsRespondent(UserDetails userDetails, String caseId) {
@@ -278,7 +268,7 @@ public class LinkRespondentTest extends RetrieveAosCaseSupport {
         assertNull(caseDetails.getData().get(RECEIVED_AOS_FROM_RESP));
         assertNull(caseDetails.getData().get(RECEIVED_AOS_FROM_RESP_DATE));
         assertEquals(YES_VALUE, caseDetails.getData().get(CO_RESP_LINKED_TO_CASE));
-        assertEquals(LocalDate.now().toString(CCD_DATE_FORMAT), caseDetails.getData().get(CO_RESP_LINKED_TO_CASE_DATE));
+        assertEquals(LocalDate.now().format(DateTimeFormatter.ofPattern(CCD_DATE_FORMAT)), caseDetails.getData().get(CO_RESP_LINKED_TO_CASE_DATE));
     }
 
     private Response linkRespondent(String userToken, Long caseId, String pin) {

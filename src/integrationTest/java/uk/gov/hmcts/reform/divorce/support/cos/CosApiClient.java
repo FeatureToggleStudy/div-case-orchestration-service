@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import uk.gov.hmcts.reform.divorce.context.ServiceContextConfiguration;
+import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CcdCallbackRequest;
 
 import java.util.Map;
 
@@ -29,6 +30,14 @@ public interface CosApiClient {
 
     @RequestMapping(
         method = RequestMethod.POST,
+        value = "/co-respondent-answered"
+    )
+    Map<String, Object> coRespAnswerReceived(@RequestHeader(AUTHORIZATION) String authorisation,
+                                       @RequestBody CcdCallbackRequest caseDataContent
+    );
+
+    @RequestMapping(
+        method = RequestMethod.POST,
         value = "/aos-received"
     )
     Map<String, Object> aosReceived(@RequestHeader(AUTHORIZATION) String authorisation,
@@ -40,6 +49,12 @@ public interface CosApiClient {
         value = "/aos-submitted"
     )
     Map<String, Object> aosSubmitted(@RequestBody Map<String, Object> caseDataContent);
+
+    @RequestMapping(
+            method = RequestMethod.POST,
+            value = "/aos-solicitor-nominated"
+    )
+    Map<String, Object> aosSolicitorNominated(@RequestBody Map<String, Object> caseDataContent);
 
     @RequestMapping(
         method = RequestMethod.POST,
@@ -87,5 +102,11 @@ public interface CosApiClient {
     )
     Map<String, Object> caseLinkedForHearing(@RequestHeader(AUTHORIZATION) String authorisation,
                                              @RequestBody Map<String, Object> caseDataContent);
+
+    @RequestMapping(
+            method = RequestMethod.POST,
+            value = "/bulk/pronounce/submit"
+    )
+    Map<String, Object> bulkPronouncement(@RequestBody CcdCallbackRequest ccdCallbackRequest);
 
 }

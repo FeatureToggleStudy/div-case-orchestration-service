@@ -12,11 +12,16 @@ import org.springframework.test.context.ContextConfiguration;
 import uk.gov.hmcts.reform.divorce.model.UserDetails;
 import uk.gov.hmcts.reform.divorce.support.IdamUtils;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
 import java.util.UUID;
+import java.util.function.Supplier;
+import javax.annotation.PostConstruct;
+
+import javax.annotation.PostConstruct;
+
+import javax.annotation.PostConstruct;
 
 @Slf4j
 @RunWith(SerenityRunner.class)
@@ -58,8 +63,8 @@ public abstract class IntegrationTest {
     }
 
     @PostConstruct
-    public void init(){
-        if(!Strings.isNullOrEmpty(httpProxy)) {
+    public void init() {
+        if (!Strings.isNullOrEmpty(httpProxy)) {
             try {
                 URL proxy = new URL(httpProxy);
                 InetAddress.getByName(proxy.getHost()).isReachable(2000); // check proxy connectivity
@@ -69,7 +74,7 @@ public abstract class IntegrationTest {
                 System.setProperty("https.proxyPort", Integer.toString(proxy.getPort()));
             } catch (IOException e) {
                 log.error("Error setting up proxy - are you connected to the VPN?", e);
-                throw new RuntimeException(e);
+                throw new RuntimeException("Error setting up proxy", e);
             }
         }
     }
@@ -77,51 +82,69 @@ public abstract class IntegrationTest {
     protected UserDetails createCaseWorkerUser() {
         synchronized (this) {
             if (caseWorkerUser == null) {
-                caseWorkerUser = getUserDetails(
-                        CASE_WORKER_USERNAME + UUID.randomUUID() + EMAIL_DOMAIN, CASE_WORKER_PASSWORD,
-                        CASEWORKER_USERGROUP,
-                        CASEWORKER_ROLE, CASEWORKER_DIVORCE_ROLE,
-                        CASEWORKER_DIVORCE_COURTADMIN_ROLE, CASEWORKER_DIVORCE_COURTADMIN_BETA_ROLE
-                );
+                caseWorkerUser = warpInRetry(() -> getUserDetails(
+                    CASE_WORKER_USERNAME + UUID.randomUUID() + EMAIL_DOMAIN, CASE_WORKER_PASSWORD,
+                    CASEWORKER_USERGROUP,
+                    CASEWORKER_ROLE, CASEWORKER_DIVORCE_ROLE,
+                    CASEWORKER_DIVORCE_COURTADMIN_ROLE, CASEWORKER_DIVORCE_COURTADMIN_BETA_ROLE
+                ));
             }
-
             return caseWorkerUser;
         }
     }
 
     protected UserDetails createCitizenUser() {
-        final String username = "simulate-delivered" + UUID.randomUUID() + "@notifications.service.gov.uk";
-
-        return getUserDetails(username, PASSWORD, CITIZEN_USERGROUP, CITIZEN_ROLE);
+        return warpInRetry(() -> {
+            final String username = "simulate-delivered" + UUID.randomUUID() + "@notifications.service.gov.uk";
+            return getUserDetails(username, PASSWORD, CITIZEN_USERGROUP, CITIZEN_ROLE);
+        });
     }
 
     protected UserDetails createCitizenUser(String role) {
-        final String username = "simulate-delivered" + UUID.randomUUID() + "@notifications.service.gov.uk";
-
-        return getUserDetails(username, PASSWORD, CITIZEN_USERGROUP, role);
+        return warpInRetry(() -> {
+            final String username = "simulate-delivered" + UUID.randomUUID() + "@notifications.service.gov.uk";
+            return getUserDetails(username, PASSWORD, CITIZEN_USERGROUP, role);
+        });
     }
 
     private UserDetails getUserDetails(String username, String password, String userGroup, String... role) {
         synchronized (this) {
             idamTestSupportUtil.createUser(username, password, userGroup, role);
 
-            try {
-                // calling generate token too soon might fail, so we sleep..
-                Thread.sleep(1000);
-            } catch (InterruptedException ignored) {
-            }
-
             final String authToken = idamTestSupportUtil.generateUserTokenWithNoRoles(username, password);
 
             final String userId = idamTestSupportUtil.getUserId(authToken);
 
             return UserDetails.builder()
-                    .username(username)
-                    .emailAddress(username)
-                    .password(password)
-                    .authToken(authToken)
-                    .id(userId)
-                    .build();
+                .username(username)
+                .emailAddress(username)
+                .password(password)
+                .authToken(authToken)
+                .id(userId)
+                .build();
+        }
+    }
+
+    private UserDetails warpInRetry(Supplier<UserDetails> supplier) {
+        //tactical solution as sometimes the newly created user is somehow corrupted and won't generate a code..
+        int count = 0;
+        int maxTries = 5;
+        while (true) {
+            try {
+                return supplier.get();
+            } catch (Exception e) {
+                if (++count == maxTries) {
+                    log.error("Exhausted the number of maximum retry attempts..", e);
+                    throw e;
+                }
+                try {
+                    //some backoff time
+                    Thread.sleep(200);
+                } catch (InterruptedException ex) {
+                    log.error("Error during sleep", ex);
+                }
+                log.trace("Encountered an error creating a user/token - retrying", e);
+            }
         }
     }
 }
