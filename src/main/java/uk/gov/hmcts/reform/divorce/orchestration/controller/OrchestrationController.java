@@ -35,6 +35,7 @@ import java.util.Map;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.MediaType;
 
+import static java.util.Collections.emptyMap;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.ID;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.SUCCESS_STATUS;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.VALIDATION_ERROR_KEY;
@@ -339,5 +340,19 @@ public class OrchestrationController {
         return ResponseEntity.ok(orchestrationService.amendPetition(caseId, authorizationToken));
     }
 
+    @PostMapping(path = "/make-case-eligible-for-da/{caseId}",
+        produces = MediaType.APPLICATION_JSON)
+    @ApiOperation(value = "Makes a case eligible for Decree Absolute")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Case was updated in CCD",
+            response = CaseResponse.class),
+        @ApiResponse(code = 400, message = "Bad Request")})
+    public ResponseEntity<Map<String, Object>> makeCaseEligibleForDecreeAbsolute(
+        @RequestHeader(value = "Authorization", required = false) String authorizationToken,
+        @PathVariable String caseId) {
+
+        return ResponseEntity.ok(emptyMap());
+
+    }
 
 }
