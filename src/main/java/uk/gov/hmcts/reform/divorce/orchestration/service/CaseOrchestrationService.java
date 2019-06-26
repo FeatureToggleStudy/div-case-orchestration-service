@@ -108,4 +108,8 @@ public interface CaseOrchestrationService {
     Map<String, Object> processCaseBeforeDecreeNisiIsGranted(CcdCallbackRequest ccdCallbackRequest) throws CaseOrchestrationServiceException;
 
     Map<String, Object> updateBulkCaseDnPronounce(CaseDetails caseDetails, String authToken) throws WorkflowException;
+
+    Map<String, Object> updateDNPronouncedCases() throws WorkflowException;
+
+
 }

@@ -581,4 +581,13 @@ public class CaseOrchestrationServiceImpl implements CaseOrchestrationService {
     public Map<String, Object> updateBulkCaseDnPronounce(CaseDetails caseDetails, String authToken) throws WorkflowException {
         return bulkCaseUpdateDnPronounceDatesWorkflow.run(caseDetails, authToken);
     }
+
+    @Override
+    public Map<String, Object> updateDNPronouncedCases() throws WorkflowException {
+        // create a new workflow
+        
+        return null;
+    }
+
+
 }
