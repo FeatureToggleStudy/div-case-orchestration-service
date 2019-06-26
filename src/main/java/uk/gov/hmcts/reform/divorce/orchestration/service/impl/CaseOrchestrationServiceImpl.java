@@ -593,4 +593,6 @@ public class CaseOrchestrationServiceImpl implements CaseOrchestrationService {
     }
 
 
+    public void makeCaseEligibleForDA() {
+    }
 }
