@@ -36,7 +36,6 @@ import java.util.Map;
 import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.MediaType;
 
-import static java.util.Collections.emptyMap;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.ID;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.SUCCESS_STATUS;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.VALIDATION_ERROR_KEY;

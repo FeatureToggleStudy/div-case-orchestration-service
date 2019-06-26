@@ -29,7 +29,6 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.AUTH_TOKEN;
@@ -336,9 +335,10 @@ public class OrchestrationControllerTest {
 
     @Test
     public void testServiceIsCalledAccordingly_ForMakeCaseEligibleForDA() throws CaseOrchestrationServiceException {
-        classUnderTest.makeCaseEligibleForDecreeAbsolute("testAuthToken", "testCaseId");
+        ResponseEntity<Map<String, Object>> response = classUnderTest.makeCaseEligibleForDecreeAbsolute("testAuthToken", "testCaseId");
 
         verify(caseOrchestrationService).makeCaseEligibleForDA("testAuthToken", "testCaseId");
+        assertThat(response.getStatusCode(), is(HttpStatus.OK));
     }
 
 }

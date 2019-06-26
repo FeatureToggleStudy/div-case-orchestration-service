@@ -33,4 +33,6 @@ public class MakeCaseEligibleForDATest {
 
     //TODO - test that CMS was called
 
+    //TODO - test that error message is returner to user
+
 }
