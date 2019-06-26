@@ -108,6 +108,7 @@ public class OrchestrationConstants {
     public static final String LINK_RESPONDENT_GENERIC_EVENT_ID = "linkRespondent";
     public static final String START_AOS_EVENT_ID = "startAos";
     public static final String PAYMENT_MADE_EVENT = "paymentMade";
+    public static final String MAKE_CASE_ELIGIBLE_FOR_DA_EVENT_ID = "makeCaseEligibleForDA";
 
     // CCD Case States
     public static final String AOS_AWAITING = "AosAwaiting";
