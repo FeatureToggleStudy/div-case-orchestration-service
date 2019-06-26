@@ -122,6 +122,10 @@ public class OrchestrationConstants {
     public static final String AWAITING_REISSUE = "AwaitingReissue";
     public static final String DEFENDED = "DefendedDivorce";
     public static final String DN_AWAITING = "DNAwaiting";
+    public static final String DN_PRONOUNCED = "DNPronounced";
+    public static final String AWAITING_DA = "AwaitingDA";
+    public static final String DA_REQUESTED = "DARequested";
+    public static final String DIVROCE_GRANTED = "DivorceGranted";
 
     // CCD Co-Respondent Fields
     public static final String CO_RESP_LINKED_TO_CASE = "CoRespLinkedToCase";
