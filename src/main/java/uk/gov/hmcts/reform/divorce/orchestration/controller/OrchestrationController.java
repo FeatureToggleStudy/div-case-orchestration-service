@@ -29,6 +29,7 @@ import uk.gov.hmcts.reform.divorce.orchestration.domain.model.idam.UserDetails;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.payment.PaymentUpdate;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowException;
 import uk.gov.hmcts.reform.divorce.orchestration.service.CaseOrchestrationService;
+import uk.gov.hmcts.reform.divorce.orchestration.service.CaseOrchestrationServiceException;
 
 import java.util.Map;
 
@@ -351,8 +352,13 @@ public class OrchestrationController {
         @RequestHeader(value = "Authorization", required = false) String authorizationToken,
         @PathVariable String caseId) {
 
-        return ResponseEntity.ok(emptyMap());
+        try {
+            return ResponseEntity.ok(orchestrationService.makeCaseEligibleForDA(authorizationToken, caseId));
+        } catch (CaseOrchestrationServiceException e) {
+            e.printStackTrace();
+        }
 
+        return null;
     }
 
 }

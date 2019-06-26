@@ -19,6 +19,7 @@ import uk.gov.hmcts.reform.divorce.orchestration.domain.model.payment.PaymentUpd
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.validation.ValidationResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowException;
 import uk.gov.hmcts.reform.divorce.orchestration.service.CaseOrchestrationService;
+import uk.gov.hmcts.reform.divorce.orchestration.service.CaseOrchestrationServiceException;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -28,6 +29,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.divorce.orchestration.TestConstants.AUTH_TOKEN;
@@ -324,7 +326,6 @@ public class OrchestrationControllerTest {
         final CcdCallbackRequest ccdCallbackRequest = new CcdCallbackRequest();
         ccdCallbackRequest.setCaseDetails(caseDetails);
         CcdCallbackResponse expectedResponse = CcdCallbackResponse.builder().data(caseData).build();
-
         when(caseOrchestrationService.sendCoRespReceivedNotificationEmail(ccdCallbackRequest)).thenReturn(expectedResponse);
 
         ResponseEntity<CcdCallbackResponse> response = classUnderTest.corespReceived(ccdCallbackRequest);
@@ -332,4 +333,12 @@ public class OrchestrationControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(expectedResponse, response.getBody());
     }
+
+    @Test
+    public void testServiceIsCalledAccordingly_ForMakeCaseEligibleForDA() throws CaseOrchestrationServiceException {
+        classUnderTest.makeCaseEligibleForDecreeAbsolute("testAuthToken", "testCaseId");
+
+        verify(caseOrchestrationService).makeCaseEligibleForDA("testAuthToken", "testCaseId");
+    }
+
 }

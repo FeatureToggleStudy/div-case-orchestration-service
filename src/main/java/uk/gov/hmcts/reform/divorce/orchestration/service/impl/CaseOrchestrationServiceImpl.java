@@ -128,11 +128,7 @@ public class CaseOrchestrationServiceImpl implements CaseOrchestrationService {
     private final DecreeNisiAboutToBeGrantedWorkflow decreeNisiAboutToBeGrantedWorkflow;
     private final BulkCaseUpdateDnPronounceDatesWorkflow bulkCaseUpdateDnPronounceDatesWorkflow;
     private final SetDNOutcomeFlagWorkflow setDNOutcomeFlagWorkflow;
-<<<<<<< HEAD
     private final UpdateDNPronouncedCasesWorkflow updateDNPronouncedCasesWorkflow;
-=======
-    private final MakeCaseEligibleForDecreeAbsoluteWorkflow makeCaseEligibleForDecreeAbsoluteWorkflow;
->>>>>>> Finished service test
 
     @Override
     public Map<String, Object> handleIssueEventCallback(CcdCallbackRequest ccdCallbackRequest,
@@ -597,7 +593,6 @@ public class CaseOrchestrationServiceImpl implements CaseOrchestrationService {
         return result;
     }
 
+    public Map<String, Object> makeCaseEligibleForDA(String authorisationToken, String caseId) throws CaseOrchestrationServiceException {}
 
-    public void makeCaseEligibleForDA() {
-    }
 }
