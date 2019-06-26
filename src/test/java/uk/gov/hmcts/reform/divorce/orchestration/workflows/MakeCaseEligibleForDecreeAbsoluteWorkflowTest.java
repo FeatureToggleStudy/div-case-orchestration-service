@@ -23,7 +23,7 @@ import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.Orchestrati
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.CASE_ID_JSON_KEY;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MakeCaseEligibleForDecreeAbsoluteWorkFlowTest {
+public class MakeCaseEligibleForDecreeAbsoluteWorkflowTest {
 
     private static final String MAKE_CASE_ELIGIBLE_FOR_DA_EVENT_ID = "makeCaseEligibleForDA";
 
@@ -31,7 +31,7 @@ public class MakeCaseEligibleForDecreeAbsoluteWorkFlowTest {
     UpdateCaseInCCD updateCaseMock;
 
     @InjectMocks
-    MakeCaseEligibleForDecreeAbsoluteWorkFlow makeCaseEligibleForDecreeAbsoluteWorkFlow;
+    MakeCaseEligibleForDecreeAbsoluteWorkflow makeCaseEligibleForDecreeAbsoluteWorkFlow;
 
     @Captor
     ArgumentCaptor<TaskContext> taskContextCaptor;

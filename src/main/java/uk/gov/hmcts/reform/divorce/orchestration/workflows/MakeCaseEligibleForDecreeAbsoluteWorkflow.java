@@ -14,11 +14,11 @@ import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.Orchestrati
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.CASE_ID_JSON_KEY;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.MAKE_CASE_ELIGIBLE_FOR_DA_EVENT_ID;
 
-public class MakeCaseEligibleForDecreeAbsoluteWorkFlow extends DefaultWorkflow<Map<String, Object>> {
+public class MakeCaseEligibleForDecreeAbsoluteWorkflow extends DefaultWorkflow<Map<String, Object>> {
 
     private UpdateCaseInCCD updateCaseInCCD;
 
-    public MakeCaseEligibleForDecreeAbsoluteWorkFlow(UpdateCaseInCCD updateCaseInCCD) {
+    public MakeCaseEligibleForDecreeAbsoluteWorkflow(UpdateCaseInCCD updateCaseInCCD) {
         this.updateCaseInCCD = updateCaseInCCD;
     }
 
