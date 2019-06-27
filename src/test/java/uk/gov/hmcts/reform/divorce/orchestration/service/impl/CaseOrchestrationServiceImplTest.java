@@ -22,41 +22,7 @@ import uk.gov.hmcts.reform.divorce.orchestration.domain.model.payment.PaymentUpd
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowException;
 import uk.gov.hmcts.reform.divorce.orchestration.service.CaseOrchestrationServiceException;
 import uk.gov.hmcts.reform.divorce.orchestration.util.AuthUtil;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.AmendPetitionWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.AuthenticateRespondentWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.BulkCaseUpdateDnPronounceDatesWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.BulkCaseUpdateHearingDetailsEventWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.CaseLinkedForHearingWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.DNSubmittedWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.DecreeNisiAboutToBeGrantedWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.DeleteDraftWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.DocumentGenerationWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.GenerateCoRespondentAnswersWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.GetCaseWithIdWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.GetCaseWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.IssueEventWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.LinkRespondentWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.ProcessAwaitingPronouncementCasesWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.ProcessPbaPaymentWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.RespondentSolicitorNominatedWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.RetrieveAosCaseWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.RetrieveDraftWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.SaveDraftWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.SendCoRespondSubmissionNotificationWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.SendPetitionerClarificationRequestNotificationWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.SendPetitionerEmailNotificationWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.SendPetitionerSubmissionNotificationWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.SendRespondentSubmissionNotificationWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.SeparationFieldsWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.SetDNOutcomeFlagWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.SetOrderSummaryWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.SolicitorCreateWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.SubmitCoRespondentAosWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.SubmitDnCaseWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.SubmitRespondentAosCaseWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.SubmitToCCDWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.UpdateToCCDWorkflow;
-import uk.gov.hmcts.reform.divorce.orchestration.workflows.ValidateBulkCaseListingWorkflow;
+import uk.gov.hmcts.reform.divorce.orchestration.workflows.*;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -207,6 +173,9 @@ public class CaseOrchestrationServiceImplTest {
 
     @Mock
     private SetDNOutcomeFlagWorkflow setDNOutcomeFlagWorkflow;
+
+    @Mock
+    private UpdateDNPronouncedCasesWorkflow updateDNPronouncedCasesWorkflow;
 
     @InjectMocks
     private CaseOrchestrationServiceImpl classUnderTest;
@@ -1064,6 +1033,17 @@ public class CaseOrchestrationServiceImplTest {
         Map<String, Object> returnedPayload = classUnderTest.addDNOutcomeFlag(ccdCallbackRequest);
 
         assertThat(returnedPayload, hasEntry("returnedKey", "returnedValue"));
+    }
+
+    @Test
+    public void whenUpdateDNPronouncedCases_thenProceedAsExpected() throws WorkflowException {
+        Map<String, Object> expectedResult = ImmutableMap.of("someKey", "someValue");
+        when(authUtil.getCaseworkerToken()).thenReturn(AUTH_TOKEN);
+        when(updateDNPronouncedCasesWorkflow.run(AUTH_TOKEN)).thenReturn(expectedResult);
+
+        Map<String, Object>  actual = classUnderTest.updateDNPronouncedCases();
+
+        assertEquals(expectedResult, actual);
     }
 
     @After

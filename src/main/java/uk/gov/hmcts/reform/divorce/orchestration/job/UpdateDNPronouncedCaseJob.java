@@ -16,7 +16,7 @@ public class UpdateDNPronouncedCaseJob implements Job {
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
         try {
-            orchestrationService.moveCaseToAwaitingDA();
+            orchestrationService.updateDNPronouncedCases();
             log.info("UpdateDNPronouncedCaseJob executed");
         } catch (WorkflowException e) {
             throw new JobExecutionException("Case update failed", e);

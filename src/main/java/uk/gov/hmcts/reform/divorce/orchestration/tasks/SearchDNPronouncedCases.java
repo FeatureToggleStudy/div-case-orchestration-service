@@ -13,10 +13,12 @@ import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskCon
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.BulkCaseConstants.BULK_CASE_LIST_KEY;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.BulkCaseConstants.SEARCH_RESULT_KEY;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.AUTH_TOKEN_JSON_KEY;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.CASE_STATE_JSON_KEY;
@@ -76,6 +78,8 @@ public class SearchDNPronouncedCases implements Task<Map<String, Object>> {
         while (from < totalNumberSearchResult);
         // TODO Do we use SERCH_RESULT_KEY if it refers to Bulk case ?
         context.setTransientObject(SEARCH_RESULT_KEY, searchResultCaseIds);
-        return payload;
+        Map<String, Object> caseIds = new HashMap<>();
+        caseIds.put(BULK_CASE_LIST_KEY, caseIds);
+        return caseIds;
     }
 }
