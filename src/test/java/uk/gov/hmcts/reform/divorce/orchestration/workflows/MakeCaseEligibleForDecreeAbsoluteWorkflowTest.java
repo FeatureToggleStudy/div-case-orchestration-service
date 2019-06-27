@@ -25,7 +25,7 @@ import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.Orchestrati
 @RunWith(MockitoJUnitRunner.class)
 public class MakeCaseEligibleForDecreeAbsoluteWorkflowTest {
 
-    private static final String MAKE_CASE_ELIGIBLE_FOR_DA_EVENT_ID = "makeCaseEligibleForDA";
+    private static final String MAKE_CASE_ELIGIBLE_FOR_DA_PETITIONER_EVENT_ID = "MakeEligibleForDA_Petitioner";
 
     @Mock
     UpdateCaseInCCD updateCaseMock;
@@ -45,7 +45,7 @@ public class MakeCaseEligibleForDecreeAbsoluteWorkflowTest {
         TaskContext taskContext = taskContextCaptor.getValue();
         assertThat(taskContext.getTransientObject(AUTH_TOKEN_JSON_KEY), equalTo("testAuthorisationToken"));
         assertThat(taskContext.getTransientObject(CASE_ID_JSON_KEY), equalTo("testCaseId"));
-        assertThat(taskContext.getTransientObject(CASE_EVENT_ID_JSON_KEY), equalTo(MAKE_CASE_ELIGIBLE_FOR_DA_EVENT_ID));
+        assertThat(taskContext.getTransientObject(CASE_EVENT_ID_JSON_KEY), equalTo(MAKE_CASE_ELIGIBLE_FOR_DA_PETITIONER_EVENT_ID));
     }
 
 }
