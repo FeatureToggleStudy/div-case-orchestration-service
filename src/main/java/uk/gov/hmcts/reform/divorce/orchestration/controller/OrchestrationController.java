@@ -351,13 +351,15 @@ public class OrchestrationController {
         @RequestHeader(value = "Authorization", required = false) String authorizationToken,
         @PathVariable String caseId) {
 
+        ResponseEntity<Map<String, Object>> responseEntity;
+
         try {
-            return ResponseEntity.ok(orchestrationService.makeCaseEligibleForDA(authorizationToken, caseId));
+            responseEntity = ResponseEntity.ok(orchestrationService.makeCaseEligibleForDA(authorizationToken, caseId));
         } catch (CaseOrchestrationServiceException e) {
-            e.printStackTrace();
+            responseEntity = ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
-        return null;
+        return responseEntity;
     }
 
 }
