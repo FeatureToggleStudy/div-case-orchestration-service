@@ -20,10 +20,7 @@ import java.util.stream.Collectors;
 
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.BulkCaseConstants.BULK_CASE_LIST_KEY;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.BulkCaseConstants.SEARCH_RESULT_KEY;
-import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.AUTH_TOKEN_JSON_KEY;
-import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.CASE_STATE_JSON_KEY;
-import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.DECREE_NISI_GRANTED_DATE_CCD_FIELD;
-import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.DN_PRONOUNCED;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.*;
 
 @Component
 public class SearchDNPronouncedCases implements Task<Map<String, Object>> {
@@ -41,7 +38,7 @@ public class SearchDNPronouncedCases implements Task<Map<String, Object>> {
     public Map<String, Object> execute(TaskContext context, Map<String, Object> payload) throws TaskException {
         int start = context.getTransientObject("FROM");
         int pageSize = context.getTransientObject("PAGE_SIZE");
-        String coolOffPeriodInDN = "43d";
+        String coolOffPeriodInDN = context.getTransientObject(AWAITING_DA_PERIOD_KEY) + "d";
 
         QueryBuilder stateQuery = QueryBuilders.matchQuery(CASE_STATE_JSON_KEY, DN_PRONOUNCED);
         QueryBuilder dateFilter = QueryBuilders.rangeQuery(DN_GRANTED_DATE).lte("now/d-" + coolOffPeriodInDN);

@@ -284,6 +284,9 @@ public class OrchestrationConstants {
 
     public static final String SEARCH_PAGE_KEY = "SEARCH_PAGE";
 
+    // DA related
+    public static final String AWAITING_DA_PERIOD_KEY = "awaitingDAPeriod";
+
     // Validation
     public static final String ERROR_STATUS = "error";
     public static final String FORM_ID = "case-progression";
