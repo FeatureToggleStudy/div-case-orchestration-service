@@ -7,10 +7,9 @@ import org.elasticsearch.search.builder.SearchSourceBuilder;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CMSSearchService implements ISearchService {
+public class SearchSourceFactory {
 
-    @Override
-    public SearchSourceBuilder buildBooleanSearchSource(int start, int batchSize, QueryBuilder... builders) {
+    public static SearchSourceBuilder buildCMSSearchSource(int start, int batchSize, QueryBuilder... builders) {
 
         BoolQueryBuilder query = QueryBuilders.boolQuery();
 

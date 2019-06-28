@@ -10,10 +10,10 @@ import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.SearchResult;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.Task;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskContext;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskException;
-import uk.gov.hmcts.reform.divorce.orchestration.service.ISearchService;
+import uk.gov.hmcts.reform.divorce.orchestration.service.SearchSourceFactory;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -31,11 +31,10 @@ public class SearchDNPronouncedCases implements Task<Map<String, Object>> {
     private static String DN_GRANTED_DATE = String.format("data.%s", DECREE_NISI_GRANTED_DATE_CCD_FIELD);
 
     private final CaseMaintenanceClient caseMaintenanceClient;
-    private final ISearchService caseMaintenanceSearchService;
 
-    @Autowired    public SearchDNPronouncedCases(CaseMaintenanceClient caseMaintenanceClient, ISearchService searchService) {
+    @Autowired
+    public SearchDNPronouncedCases(CaseMaintenanceClient caseMaintenanceClient) {
         this.caseMaintenanceClient = caseMaintenanceClient;
-        this.caseMaintenanceSearchService = searchService;
     }
 
     @Override
@@ -49,23 +48,27 @@ public class SearchDNPronouncedCases implements Task<Map<String, Object>> {
 
         SearchResult finalResult = SearchResult.builder()
                                             .total(0)
-                                            .cases(Collections.emptyList())
+                                            .cases(new ArrayList<>())
                                             .build();
-        int resultSize;
-        do {
-            SearchResult result = caseMaintenanceClient.searchCases(
-                context.getTransientObject(AUTH_TOKEN_JSON_KEY),
-                caseMaintenanceSearchService
-                    .buildBooleanSearchSource(start, pageSize, stateQuery, dateFilter)
-                    .toString()
-            );
-            resultSize = result.getTotal();
-            start = pageSize;
-            finalResult.setTotal(finalResult.getTotal() + resultSize);
-            finalResult.getCases().addAll(result.getCases());
 
+        int searchTotalNumberOfResults;
+        int rollingSearchResultSize = 0;
+
+        do {
+            SearchResult currentSearchResult = caseMaintenanceClient.searchCases(
+                context.getTransientObject(AUTH_TOKEN_JSON_KEY),
+                SearchSourceFactory
+                            .buildCMSSearchSource(start, pageSize, stateQuery, dateFilter)
+                            .toString()
+            );
+            searchTotalNumberOfResults = currentSearchResult.getTotal();
+            rollingSearchResultSize += currentSearchResult.getCases().size();
+            start += pageSize;
+            finalResult.setTotal(searchTotalNumberOfResults);
+            finalResult.getCases().addAll(currentSearchResult.getCases());
         }
-        while (resultSize > pageSize);
+        while (searchTotalNumberOfResults > rollingSearchResultSize);
+
         context.setTransientObject(SEARCH_RESULT_KEY, returnCaseIdsOnly(finalResult));
         Map<String, Object> caseIds = new HashMap<>();
         caseIds.put(BULK_CASE_LIST_KEY, caseIds);
@@ -75,6 +78,7 @@ public class SearchDNPronouncedCases implements Task<Map<String, Object>> {
     private List<String> returnCaseIdsOnly(SearchResult finalResult) {
         return finalResult.getCases()
             .stream()
-            .map(CaseDetails::getCaseId)            .collect(Collectors.toList());
+            .map(CaseDetails::getCaseId)
+            .collect(Collectors.toList());
     }
 }

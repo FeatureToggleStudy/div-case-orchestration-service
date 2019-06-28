@@ -8,7 +8,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowException;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.Task;
-import uk.gov.hmcts.reform.divorce.orchestration.tasks.*;
+import uk.gov.hmcts.reform.divorce.orchestration.tasks.SearchDNPronouncedCases;
+import uk.gov.hmcts.reform.divorce.orchestration.tasks.UpdateDNPronouncedCase;
 
 import java.util.Collections;
 import java.util.Map;

@@ -6,7 +6,8 @@ import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.DefaultWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowException;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.Task;
-import uk.gov.hmcts.reform.divorce.orchestration.tasks.*;
+import uk.gov.hmcts.reform.divorce.orchestration.tasks.SearchDNPronouncedCases;
+import uk.gov.hmcts.reform.divorce.orchestration.tasks.UpdateDNPronouncedCase;
 
 import java.util.Map;
 
@@ -24,8 +25,8 @@ public class UpdateDNPronouncedCasesWorkflow extends DefaultWorkflow<Map<String,
 
         return this.execute(
                 new Task[]{
-                        searchDNPronouncedCases,
-                        updateDNPronouncedCase
+                    searchDNPronouncedCases,
+                    updateDNPronouncedCase
                 },
                 null,
                 ImmutablePair.of(AUTH_TOKEN_JSON_KEY, authToken),
