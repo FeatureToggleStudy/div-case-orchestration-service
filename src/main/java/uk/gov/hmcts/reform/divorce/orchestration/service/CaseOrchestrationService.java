@@ -109,6 +109,8 @@ public interface CaseOrchestrationService {
 
     Map<String, Object> updateBulkCaseDnPronounce(CaseDetails caseDetails, String authToken) throws WorkflowException;
 
+    Map<String, Object> updateDNPronouncedCases() throws WorkflowException;
+
     Map<String, Object> makeCaseEligibleForDA(String authorisationToken, String caseId) throws CaseOrchestrationServiceException;
 
 }
