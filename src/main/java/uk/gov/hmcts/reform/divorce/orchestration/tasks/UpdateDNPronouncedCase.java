@@ -14,6 +14,7 @@ import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.BulkCaseConstants.BULK_CASE_LIST_KEY;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.AUTH_TOKEN_JSON_KEY;
 
 @Component
 public class UpdateDNPronouncedCase extends AsyncTask<Map<String, Object>> {
@@ -29,7 +30,8 @@ public class UpdateDNPronouncedCase extends AsyncTask<Map<String, Object>> {
     }
 
     public UpdateDNPronouncedCaseEvent publishNewUpdateEvent(TaskContext context, String caseId) {
-        UpdateDNPronouncedCaseEvent updateCaseEvent = new UpdateDNPronouncedCaseEvent(context, caseId);
+        UpdateDNPronouncedCaseEvent updateCaseEvent = new UpdateDNPronouncedCaseEvent(
+                context, context.getTransientObject(AUTH_TOKEN_JSON_KEY), caseId);
         applicationEventPublisher.publishEvent(updateCaseEvent);
         return updateCaseEvent;
     }

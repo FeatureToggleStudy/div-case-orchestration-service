@@ -48,11 +48,11 @@ scheduler:
       jobClass: 'uk.gov.hmcts.reform.divorce.orchestration.job.CreateBulkCaseJob'
       cron: ${SCHEDULER_SCHEDULES_CREATE_BULK_CASES_CRON:0 0 4 ? * * *} #Time to confirm with devops, right now 4:00AM
     - name: 'UpdateDNPronouncedCase'
-      enabled: ${SCHEDULER_SCHEDULES_CREATE_BULK_CASES_ENABLED:true}
+      enabled: ${SCHEDULER_ENABLED:true}
       cronGroup: "NIGHTLY_CRON"
       description: 'Cron job to move eligible DN pronounced cases to awaiting DA'
       jobClass: 'uk.gov.hmcts.reform.divorce.orchestration.job.UpdateDNPronouncedCaseJob'
-      cron: ${SCHEDULER_SCHEDULES_CREATE_BULK_CASES_CRON:0 0 4 ? * * *} #4:00AM
+      cron: ${SCHEDULER_ENABLED:0 0 */3 ? * * *} #Every 3 hours
 
 server:
   port: ${CASE_ORCHESTRATION_SERVICE_URL:4012}
@@ -76,8 +76,8 @@ case:
     service:
       api:
         baseurl: ${CASE_MAINTENANCE_SERVICE_API_BASEURL:http://localhost:4010}
-    event:
-      awaiting_da_period: 43 #in days
+  event:
+    awaiting-da-period: 43 #in days
 
 fees-and-payments:
   service:

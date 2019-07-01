@@ -1,15 +1,11 @@
 package uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @Data
-@Builder
-@AllArgsConstructor
 public class DefaultTaskContext implements TaskContext {
 
     private boolean taskFailed;
