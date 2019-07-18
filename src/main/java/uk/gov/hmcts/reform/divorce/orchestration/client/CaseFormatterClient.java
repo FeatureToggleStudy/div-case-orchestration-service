@@ -61,4 +61,22 @@ public interface CaseFormatterClient {
     Map<String, Object> transformToDnCaseFormat(
             @RequestBody Map<String, Object> divorceSession
     );
+
+    @RequestMapping(
+            method = RequestMethod.POST,
+            value = "/caseformatter/version/1/remove-all-petition-documents",
+            headers = CONTENT_TYPE + "=" + APPLICATION_JSON_VALUE
+    )
+    Map<String, Object> removeAllPetitionDocuments(
+            @RequestBody Map<String, Object> caseData
+    );
+
+    @RequestMapping(
+            method = RequestMethod.POST,
+            value = "/caseformatter/version/1/to-da-submit-format",
+            headers = CONTENT_TYPE + "=" + APPLICATION_JSON_VALUE
+    )
+    Map<String, Object> transformToDaCaseFormat(
+            @RequestBody Map<String, Object> divorceSession
+    );
 }

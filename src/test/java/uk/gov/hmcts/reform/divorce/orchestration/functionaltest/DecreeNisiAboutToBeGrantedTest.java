@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.divorce.orchestration.functionaltest;
 
+import com.google.common.collect.ImmutableMap;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,6 +19,7 @@ import static com.jayway.jsonpath.matchers.JsonPathMatchers.isJson;
 import static java.util.Collections.singletonMap;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -27,8 +29,9 @@ import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.Orchestrati
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.CASE_DETAILS_JSON_KEY;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.CCD_CASE_DATA_FIELD;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.DECREE_NISI_GRANTED_CCD_FIELD;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.DIVORCE_COSTS_CLAIM_CCD_FIELD;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.DIVORCE_COSTS_CLAIM_GRANTED_CCD_FIELD;
-import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.DN_APPROVAL_DATE_FIELD;
+import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.DN_DECISION_DATE_FIELD;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.DN_OUTCOME_FLAG_CCD_FIELD;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.NO_VALUE;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.STATE_CCD_FIELD;
@@ -54,6 +57,7 @@ public class DecreeNisiAboutToBeGrantedTest {
     public void shouldReturnCaseDataPlusDnGrantedDate_AndState_WhenDNGranted_AndCostsOrderGranted() throws Exception {
         HashMap<Object, Object> caseData = new HashMap<>();
         caseData.put(DECREE_NISI_GRANTED_CCD_FIELD, YES_VALUE);
+        caseData.put(DIVORCE_COSTS_CLAIM_CCD_FIELD, YES_VALUE);
         caseData.put(DIVORCE_COSTS_CLAIM_GRANTED_CCD_FIELD, YES_VALUE);
         String inputJson = JSONObject.valueToString(singletonMap(CASE_DETAILS_JSON_KEY,
             singletonMap(CCD_CASE_DATA_FIELD, caseData)
@@ -68,7 +72,7 @@ public class DecreeNisiAboutToBeGrantedTest {
                     hasJsonPath(STATE_CCD_FIELD, equalTo(AWAITING_PRONOUNCEMENT)),
                     hasJsonPath(WHO_PAYS_COSTS_CCD_FIELD, equalTo(WHO_PAYS_CCD_CODE_FOR_RESPONDENT)),
                     hasJsonPath(DN_OUTCOME_FLAG_CCD_FIELD, equalTo(YES_VALUE)),
-                    hasJsonPath(DN_APPROVAL_DATE_FIELD, equalTo(ccdUtil.getCurrentDateCcdFormat()))
+                    hasJsonPath(DN_DECISION_DATE_FIELD, equalTo(ccdUtil.getCurrentDateCcdFormat()))
                 ))
             )));
     }
@@ -90,7 +94,7 @@ public class DecreeNisiAboutToBeGrantedTest {
                     hasJsonPath(STATE_CCD_FIELD, equalTo(AWAITING_PRONOUNCEMENT)),
                     hasJsonPath(DN_OUTCOME_FLAG_CCD_FIELD, equalTo(YES_VALUE)),
                     hasNoJsonPath(WHO_PAYS_COSTS_CCD_FIELD),
-                    hasJsonPath(DN_APPROVAL_DATE_FIELD, equalTo(ccdUtil.getCurrentDateCcdFormat()))
+                    hasJsonPath(DN_DECISION_DATE_FIELD, equalTo(ccdUtil.getCurrentDateCcdFormat()))
                 ))
             )));
     }
@@ -110,11 +114,46 @@ public class DecreeNisiAboutToBeGrantedTest {
                 hasJsonPath(CCD_RESPONSE_DATA_FIELD, allOf(
                     hasJsonPath(DECREE_NISI_GRANTED_CCD_FIELD, equalTo(NO_VALUE)),
                     hasJsonPath(STATE_CCD_FIELD, equalTo(AWAITING_CLARIFICATION)),
+                    hasJsonPath(DN_DECISION_DATE_FIELD, equalTo(ccdUtil.getCurrentDateCcdFormat())),
                     hasNoJsonPath(WHO_PAYS_COSTS_CCD_FIELD),
-                    hasNoJsonPath(DN_OUTCOME_FLAG_CCD_FIELD),
-                    hasNoJsonPath(DN_APPROVAL_DATE_FIELD)
+                    hasNoJsonPath(DN_OUTCOME_FLAG_CCD_FIELD)
                 ))
             )));
+    }
+
+    @Test
+    public void givenCostDecision_whenNoClaimCost_thenReturnError() throws Exception {
+        String inputJson = JSONObject.valueToString(singletonMap(CASE_DETAILS_JSON_KEY,
+            singletonMap(CCD_CASE_DATA_FIELD,
+                ImmutableMap.of(DIVORCE_COSTS_CLAIM_CCD_FIELD, NO_VALUE,
+                DIVORCE_COSTS_CLAIM_GRANTED_CCD_FIELD, YES_VALUE,
+                DECREE_NISI_GRANTED_CCD_FIELD, YES_VALUE)
+            ))
+        );
+        webClient.perform(post(API_URL).content(inputJson).contentType(APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().string(allOf(
+                isJson(),
+                hasJsonPath("errors", contains("Cost decision can only be made if cost has been requested")
+                ))
+            ));
+    }
+
+    @Test
+    public void givenNoCostDecision_whenClaimCost_thenReturnError() throws Exception {
+        String inputJson = JSONObject.valueToString(singletonMap(CASE_DETAILS_JSON_KEY,
+            singletonMap(CCD_CASE_DATA_FIELD,
+                ImmutableMap.of(DIVORCE_COSTS_CLAIM_CCD_FIELD, YES_VALUE,
+                    DECREE_NISI_GRANTED_CCD_FIELD, YES_VALUE)
+            ))
+        );
+        webClient.perform(post(API_URL).content(inputJson).contentType(APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(content().string(allOf(
+                isJson(),
+                hasJsonPath("errors", contains("Cost decision expected")
+                ))
+            ));
     }
 
 }
