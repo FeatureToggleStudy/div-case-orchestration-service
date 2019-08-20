@@ -38,11 +38,14 @@ public class TestConstants {
     public static final String TEST_SERVICE_TOKEN = "testServiceToken";
     public static final String TEST_PETITIONER_FIRST_NAME = "First";
     public static final String TEST_PETITIONER_LAST_NAME = "Last";
+    public static final String TEST_FIRST_NAME = "First";
+    public static final String TEST_LAST_NAME = "Last";
     public static final String TEST_PETITIONER_EMAIL = "testPetitioner@email.com";
     public static final String TEST_PRONOUNCEMENT_JUDGE = "District Judge";
     public static final String TEST_USER_FIRST_NAME = "user first name";
     public static final String TEST_USER_LAST_NAME = "user last name";
     public static final String TEST_RELATIONSHIP = "wife";
+    public static final String TEST_INFERRED_GENDER = "female";
     public static final String TEST_RESPONDENT_FIRST_NAME = "First";
     public static final String TEST_RESPONDENT_LAST_NAME = "Last";
     public static final String TEST_RESPONDENT_EMAIL = "testRespondent@email.com";
@@ -63,4 +66,7 @@ public class TestConstants {
     public static final String BEARER_AUTH_TOKEN_1 = "Bearer test.auth.token1";
     public static final String TEST_CODE = "test.code";
     public static final Map<String, Object>  DUMMY_CASE_DATA = ImmutableMap.of("someKey", "someValue");
+    public static final String TEMPLATE_ID = "testTemplateId";
+    public static final String DOCUMENT_TYPE = "testDocumentType";
+    public static final String FILE_NAME = "testFileName";
 }

@@ -9,15 +9,19 @@ import io.swagger.annotations.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseDetails;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CcdCallbackRequest;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CcdCallbackResponse;
+import uk.gov.hmcts.reform.divorce.orchestration.domain.model.parties.DivorceParty;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.validation.ValidationResponse;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowException;
+import uk.gov.hmcts.reform.divorce.orchestration.service.AosPackOfflineService;
 import uk.gov.hmcts.reform.divorce.orchestration.service.CaseOrchestrationService;
 import uk.gov.hmcts.reform.divorce.orchestration.service.CaseOrchestrationServiceException;
 
@@ -52,6 +56,9 @@ public class CallbackController {
 
     @Autowired
     private CaseOrchestrationService caseOrchestrationService;
+
+    @Autowired
+    private AosPackOfflineService aosPackOfflineService;
 
 
     @PostMapping(path = "/request-clarification-petitioner")
@@ -569,7 +576,7 @@ public class CallbackController {
     }
 
     @PostMapping(path = "/calculate-separation-fields",
-            consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
+        consumes = MediaType.APPLICATION_JSON, produces = MediaType.APPLICATION_JSON)
     @ApiOperation(value = "Callback to calculate ccd separation fields based on provided separation dates.")
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Callback was processed successfully or in case of an error, message is "
@@ -714,6 +721,34 @@ public class CallbackController {
         log.info("Remove bulk link for case ID: {}", caseId);
 
         return ResponseEntity.ok(callbackResponseBuilder.build());
+    }
+
+    @PostMapping(path = "/issue-aos-pack-offline/party/{party}")
+    @ApiOperation(value = "Callback to issue AOS pack (offline)")
+    @ApiResponses(value = {
+        @ApiResponse(code = 200, message = "Callback processed")})
+    public ResponseEntity<CcdCallbackResponse> issueAosPackOffline(
+        @RequestHeader(name = "Authorization")
+        @ApiParam(value = "Authorisation token issued by IDAM", required = true) String authToken,
+        @RequestBody @ApiParam("CaseData") CcdCallbackRequest ccdCallbackRequest,
+        @PathVariable("party") @ApiParam("Party in divorce (respondent or co-respondent") DivorceParty party) {
+
+        CcdCallbackResponse response;
+        CaseDetails caseDetails = ccdCallbackRequest.getCaseDetails();
+
+        try {
+            response = CcdCallbackResponse.builder()
+                .data(aosPackOfflineService.issueAosPackOffline(authToken, caseDetails, party))
+                .build();
+            log.info("Issued AOS pack (offline) for case id [{}]", caseDetails.getCaseId());
+        } catch (CaseOrchestrationServiceException exception) {
+            response = CcdCallbackResponse.builder()
+                .errors(singletonList(exception.getMessage()))
+                .build();
+            log.error("Error issuing AOS pack (offline) for case id [{}]", caseDetails.getCaseId());
+        }
+
+        return ResponseEntity.ok(response);
     }
 
     private List<String> getErrors(Map<String, Object> response) {

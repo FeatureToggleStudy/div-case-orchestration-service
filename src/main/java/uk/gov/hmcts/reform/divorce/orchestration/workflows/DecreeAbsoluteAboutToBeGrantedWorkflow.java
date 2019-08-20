@@ -3,6 +3,7 @@ package uk.gov.hmcts.reform.divorce.orchestration.workflows;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseDetails;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CcdCallbackRequest;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.DefaultWorkflow;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.WorkflowException;
@@ -39,6 +40,7 @@ public class DecreeAbsoluteAboutToBeGrantedWorkflow extends DefaultWorkflow<Map<
     SendDaGrantedNotificationEmail sendDaGrantedNotificationEmail;
 
     public Map<String, Object> run(final CcdCallbackRequest ccdCallbackRequest, final String authToken) throws WorkflowException {
+        CaseDetails caseDetails = ccdCallbackRequest.getCaseDetails();
 
         return this.execute(
             new Task[] {
@@ -47,9 +49,9 @@ public class DecreeAbsoluteAboutToBeGrantedWorkflow extends DefaultWorkflow<Map<
                 caseFormatterAddDocuments,
                 sendDaGrantedNotificationEmail
             },
-            ccdCallbackRequest.getCaseDetails().getCaseData(),
+            caseDetails.getCaseData(),
             ImmutablePair.of(AUTH_TOKEN_JSON_KEY, authToken),
-            ImmutablePair.of(CASE_DETAILS_JSON_KEY, ccdCallbackRequest.getCaseDetails()),
+            ImmutablePair.of(CASE_DETAILS_JSON_KEY, caseDetails),
             ImmutablePair.of(DOCUMENT_TYPE, DECREE_ABSOLUTE_DOCUMENT_TYPE),
             ImmutablePair.of(DOCUMENT_TEMPLATE_ID, DECREE_ABSOLUTE_TEMPLATE_ID),
             ImmutablePair.of(DOCUMENT_FILENAME, DECREE_ABSOLUTE_FILENAME)

@@ -50,6 +50,7 @@ public class OrchestrationConstants {
     public static final String D_8_CO_RESPONDENT_NAMED = "D8ReasonForDivorceAdulteryWishToName";
     public static final String D_8_CO_RESPONDENT_NAMED_OLD = "D8ReasonForDivorceAdulteryIsNamed";
     public static final String CCD_CASE_DATA_FIELD = "case_data";
+    public static final String CCD_CASE_ID = "id";
     public static final String NOT_RECEIVED_AOS_EVENT_ID = "aosNotReceived";
     public static final String CO_RESPONDENT_SUBMISSION_AOS_AWAITING_EVENT_ID = "co-RespAOSReceivedAwaiting";
     public static final String CO_RESPONDENT_SUBMISSION_AOS_STARTED_EVENT_ID = "co-RespAOSReceivedStarted";
@@ -92,6 +93,8 @@ public class OrchestrationConstants {
     public static final String UPDATE_BULK_DN_PRONOUNCEMENT_DETAILS_EVENT = "dnPronouncedBulk";
     public static final String WHO_PAYS_COSTS_CCD_FIELD = "WhoPaysCosts";
     public static final String WHO_PAYS_CCD_CODE_FOR_RESPONDENT = "respondent";
+    public static final String WHO_PAYS_CCD_CODE_FOR_CORESPONDENT = "coRespondent";
+    public static final String WHO_PAYS_CCD_CODE_FOR_BOTH = "respondentAndCoRespondent";
     public static final String DECREE_NISI_GRANTED_DATE_CCD_FIELD = "DecreeNisiGrantedDate";
     public static final String DECREE_ABSOLUTE_ELIGIBLE_DATE_CCD_FIELD = "DAEligibleFromDate";
     public static final String DECREE_ABSOLUTE_GRANTED_DATE_CCD_FIELD = "DecreeAbsoluteGrantedDate";
@@ -104,6 +107,7 @@ public class OrchestrationConstants {
 
     //CCD DN fields
     public static final String DN_OUTCOME_FLAG_CCD_FIELD = "DnOutcomeCase";
+    public static final String REFUSAL_DECISION_CCD_FIELD = "RefusalDecision";
 
     // CCD Events
     public static final String DN_RECEIVED = "dnReceived";
@@ -133,9 +137,9 @@ public class OrchestrationConstants {
     public static final String AWAITING_CLARIFICATION = "AwaitingClarification";
     public static final String AWAITING_REISSUE = "AwaitingReissue";
     public static final String DEFENDED = "DefendedDivorce";
-    public static final String DN_AWAITING = "DNAwaiting";
     public static final String DN_PRONOUNCED = "DNPronounced";
     public static final String AWAITING_DA = "AwaitingDecreeAbsolute";
+    public static final String DN_REFUSED = "DNisRefused";
     public static final String DA_REQUESTED = "DARequested";
     public static final String DIVROCE_GRANTED = "DivorceGranted";
 
@@ -169,6 +173,7 @@ public class OrchestrationConstants {
     public static final String SUCCESS_STATUS = "success";
 
     // Hearing
+    public static final String COURT_NAME_TEMPLATE_ID = "court name";
     public static final String COSTS_CLAIM_GRANTED = "costs claim granted";
     public static final String COSTS_CLAIM_NOT_GRANTED = "costs claim not granted";
     public static final String DATE_OF_HEARING = "date of hearing";
@@ -246,6 +251,7 @@ public class OrchestrationConstants {
     public static final String DOCUMENT_TYPE = "documentType";
     public static final String DOCUMENT_TEMPLATE_ID = "documentTemplateId";
     public static final String DOCUMENT_FILENAME = "documentFilename";
+    public static final String DOCUMENT_GENERATION_REQUESTS_KEY = "documentGenerationRequests";
     public static final String DOCUMENT_FILENAME_FMT = "%s%s";
     public static final String DOCUMENTS_GENERATED = "DocumentsGenerated";
     public static final String COSTS_ORDER_DOCUMENT_TYPE = "costsOrder";
@@ -253,10 +259,20 @@ public class OrchestrationConstants {
     public static final String DECREE_NISI_DOCUMENT_TYPE = "dnGranted";
     public static final String DECREE_NISI_FILENAME = "decreeNisi";
     public static final String DECREE_NISI_TEMPLATE_ID = "FL-DIV-GNO-ENG-00021.docx";
+    public static final String DOCUMENT_TYPE_DN_ANSWERS = "dnAnswers";
+    public static final String DN_ANSWERS_TEMPLATE_ID = "FL-DIV-GNO-ENG-00022.docx";
     public static final String DECREE_ABSOLUTE_DOCUMENT_TYPE = "daGranted";
     public static final String DECREE_ABSOLUTE_FILENAME = "decreeAbsolute";
     public static final String DECREE_ABSOLUTE_TEMPLATE_ID = "FL-DIV-GOR-ENG-00062.docx";
-
+    public static final String RESPONDENT_AOS_INVITATION_LETTER_DOCUMENT_TYPE = "aosinvitationletter-offline-resp";
+    public static final String RESPONDENT_AOS_INVITATION_LETTER_FILENAME = "aos-invitation-letter-offline-respondent";
+    public static final String RESPONDENT_AOS_INVITATION_LETTER_TEMPLATE_ID = "FL-DIV-LET-ENG-00070.doc";
+    public static final String CO_RESPONDENT_AOS_INVITATION_LETTER_DOCUMENT_TYPE = "aosinvitationletter-offline-co-resp";
+    public static final String CO_RESPONDENT_AOS_INVITATION_LETTER_FILENAME = "aos-invitation-letter-offline-co-respondent";
+    public static final String CO_RESPONDENT_AOS_INVITATION_LETTER_TEMPLATE_ID = "FL-DIV-LET-ENG-00076.doc";
+    public static final String SOLICITOR_PERSONAL_SERVICE_LETTER_TEMPLATE_ID = "FL-DIV-GNO-ENG-00073.docx";
+    public static final String SOLICITOR_PERSONAL_SERVICE_LETTER_FILENAME = "solicitor-personal-service-";
+    public static final String SOLICITOR_PERSONAL_SERVICE_LETTER_DOCUMENT_TYPE = "personalService";
 
     public static final String SOL_DOCUMENT_LINK_FIELD = "solDocumentLinkFieldName";
     public static final String MINI_PETITION_LINK = "minipetitionlink";
@@ -325,4 +341,7 @@ public class OrchestrationConstants {
         = "uk.gov.hmcts.reform.divorce.orchestration.tasks.BulkPrinter_Error";
     public static final String EMAIL_ERROR_KEY
         = "uk.gov.hmcts.reform.divorce.orchestration.tasks.EmailNotification_Error";
+
+    // Elastic Search
+    public static final String ES_CASE_ID_KEY = "reference";
 }

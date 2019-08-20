@@ -75,6 +75,14 @@ public interface CosApiClient {
     );
 
     @RequestMapping(
+        method = RequestMethod.POST,
+        value = "/da-requested-by-applicant"
+    )
+    Map<String, Object> notifyRespondentOfDARequested(@RequestHeader(AUTHORIZATION) String authorisation,
+                                                      @RequestBody CcdCallbackRequest ccdCallbackRequest
+    );
+
+    @RequestMapping(
         method = RequestMethod.GET,
         value = "/draftsapi/version/1",
         headers = CONTENT_TYPE + "=" + APPLICATION_JSON_VALUE
@@ -122,6 +130,16 @@ public interface CosApiClient {
 
     @RequestMapping(
         method = RequestMethod.POST,
+        value = "/bulk/edit/listing"
+    )
+    Map<String, Object> editBulkListing(@RequestHeader(AUTHORIZATION) String authorisation,
+                                        @RequestBody CcdCallbackRequest ccdCallbackRequest,
+                                        @RequestParam(name = "templateId") String templateId,
+                                        @RequestParam(name = "documentType") String documentType,
+                                        @RequestParam(name = "filename") String filename);
+
+    @RequestMapping(
+        method = RequestMethod.POST,
         value = "/generate-document"
     )
     Map<String, Object> generateDocument(@RequestHeader(AUTHORIZATION) String authorisation,
@@ -151,5 +169,23 @@ public interface CosApiClient {
     Map<String, Object> submitDaCase(@RequestHeader(AUTHORIZATION) String authorisation,
                                      @RequestBody Map<String, Object> caseData,
                                      @PathVariable("caseId") String caseId
+    );
+
+    @RequestMapping(
+        method = RequestMethod.POST,
+        value = "/issue-aos-pack-offline/party/{party}"
+    )
+    Map<String, Object> issueAosPackOffline(@RequestHeader(AUTHORIZATION) String authorisation,
+                                            @PathVariable("party") String party,
+                                            @RequestBody CcdCallbackRequest ccdCallbackRequest);
+
+
+    @RequestMapping(
+            method = RequestMethod.POST,
+            value = "/personal-service-pack"
+    )
+    CcdCallbackResponse processPersonalServicePack(
+            @RequestHeader(AUTHORIZATION) String authorisation,
+            @RequestBody CcdCallbackRequest ccdCallbackRequest
     );
 }
