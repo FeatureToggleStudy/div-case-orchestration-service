@@ -26,10 +26,12 @@ import static uk.gov.hmcts.reform.divorce.orchestration.workflows.dataextraction
 public class DataExtractionFileCreator implements Task<Void> {
 
     private final CMSHelper cmsHelper;
+    private final CSVExtractor dataExtractor;
 
     @Autowired
-    public DataExtractionFileCreator(CaseMaintenanceClient caseMaintenanceClient, DecreeAbsoluteDataExtractor caseDetailsMapper) {
-        cmsHelper = new CMSHelper(caseMaintenanceClient, caseDetailsMapper);
+    public DataExtractionFileCreator(CaseMaintenanceClient caseMaintenanceClient, DecreeAbsoluteDataExtractor dataExtractor) {
+        this.dataExtractor = dataExtractor;
+        cmsHelper = new CMSHelper(caseMaintenanceClient, dataExtractor);
     }
 
     @Override
@@ -41,10 +43,10 @@ public class DataExtractionFileCreator implements Task<Void> {
             QueryBuilders.termQuery("last_modified", lastModifiedDate),
             QueryBuilders.termsQuery("state", DA_REQUESTED.toLowerCase(), DIVORCE_GRANTED.toLowerCase())
         };
-        List<String> csvBodyLines = cmsHelper.searchCMSCases(0, 50, authToken, queryBuilders);
+        List<String> csvBodyLines = cmsHelper.searchCMSCases(0, 50, authToken, queryBuilders);//TODO - maybe we should make the transformation outside of the cmsHelper...
 
         StringBuilder csvFileContent = new StringBuilder();
-        csvFileContent.append("CaseReferenceNumber,DAApplicationDate,DNPronouncementDate,PartyApplyingForDA");
+        csvFileContent.append(dataExtractor.getHeaderLine());
         csvBodyLines.stream().forEach(csvFileContent::append);
 
         File csvFile = createFile(csvFileContent.toString());
@@ -57,7 +59,7 @@ public class DataExtractionFileCreator implements Task<Void> {
         File csvFile;
 
         try {
-            csvFile = Files.createTempFile("DA_family_man_data_extraction", ".csv").toFile();
+            csvFile = Files.createTempFile("data_extraction", ".csv").toFile();
             Files.write(csvFile.toPath(), csvFileContent.getBytes());
             csvFile.deleteOnExit();
         } catch (IOException e) {

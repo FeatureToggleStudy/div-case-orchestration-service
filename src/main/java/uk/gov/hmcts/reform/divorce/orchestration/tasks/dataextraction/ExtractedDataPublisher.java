@@ -26,7 +26,8 @@ public class ExtractedDataPublisher implements Task<Void> {
     public Void execute(TaskContext context, Void payload) throws TaskException {
 
         LocalDate dateToExtract = context.getTransientObject(DATE_TO_EXTRACT_KEY);
-        String attachmentFileName = String.format("DA_%s.csv", dateToExtract.format(DATA_EXTRACTION_DATE_FORMAT_FOR_FILE_NAME));
+        String fileNamePrefix = "DA";//TODO - DA specific bit
+        String attachmentFileName = String.format("%s_%s.csv", fileNamePrefix, dateToExtract.format(DATA_EXTRACTION_DATE_FORMAT_FOR_FILE_NAME));
 
         try {
             emailClient.sendEmailWithAttachment(attachmentFileName, context.getTransientObject(FILE_TO_PUBLISH));

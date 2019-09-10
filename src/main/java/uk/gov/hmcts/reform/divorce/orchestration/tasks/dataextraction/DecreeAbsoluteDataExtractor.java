@@ -23,10 +23,15 @@ import static uk.gov.hmcts.reform.divorce.orchestration.util.CcdUtil.mapCCDDateT
 
 @Component
 @Slf4j
-public class DecreeAbsoluteDataExtractor implements CaseDetailsMapper {
+public class DecreeAbsoluteDataExtractor implements CSVExtractor, CaseDetailsMapper {
 
     private static final String COMMA = ",";
     private static final String WHO_APPLIED_FOR_DA = "petitioner";
+
+    @Override
+    public String getHeaderLine() {
+        return "CaseReferenceNumber,DAApplicationDate,DNPronouncementDate,PartyApplyingForDA";
+    }
 
     @Override
     public Optional<String> mapCaseData(CaseDetails caseDetails) {
