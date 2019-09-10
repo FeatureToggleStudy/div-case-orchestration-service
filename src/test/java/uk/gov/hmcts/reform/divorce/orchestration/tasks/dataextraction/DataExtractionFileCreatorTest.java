@@ -49,7 +49,7 @@ public class DataExtractionFileCreatorTest {
     @Mock
     private CaseMaintenanceClient caseMaintenanceClient;
 
-    private final DecreeAbsoluteDataExtractor caseDetailsMapper = new DecreeAbsoluteDataExtractor();
+    private final DecreeAbsoluteDataExtractor caseDetailsMapper = new DecreeAbsoluteDataExtractor("dd");//TODO - look into this
 
     private DataExtractionFileCreator classUnderTest;
 

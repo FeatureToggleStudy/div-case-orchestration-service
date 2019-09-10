@@ -4,4 +4,8 @@ public interface CSVExtractor {
 
     String getHeaderLine();
 
+    String getDestinationEmailAddress();
+
+    String getFileNamePrefix();
+
 }

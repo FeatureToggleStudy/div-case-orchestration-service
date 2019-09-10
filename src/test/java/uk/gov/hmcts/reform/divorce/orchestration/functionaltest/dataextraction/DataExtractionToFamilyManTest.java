@@ -78,7 +78,7 @@ public class DataExtractionToFamilyManTest extends MockedFunctionalTest {
             .andExpect(status().isOk());
 
         String expectedAttachmentName = String.format("DA_%s.csv", LocalDate.now().minusDays(1).format(FILE_NAME_DATE_FORMAT));
-        verify(mockEmailClient).sendEmailWithAttachment(eq(expectedAttachmentName), attachmentCaptor.capture());
+        verify(mockEmailClient).sendEmailWithAttachment(eq("da-extraction@divorce.gov.uk"), eq(expectedAttachmentName), attachmentCaptor.capture());
         File attachmentFile = attachmentCaptor.getValue();
         assertThat(attachmentFile, is(notNullValue()));
         List<String> lines = Files.readAllLines(attachmentFile.toPath());

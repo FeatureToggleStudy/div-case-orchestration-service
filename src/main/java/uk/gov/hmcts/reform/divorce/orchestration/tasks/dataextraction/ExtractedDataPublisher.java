@@ -22,15 +22,19 @@ public class ExtractedDataPublisher implements Task<Void> {
     @Autowired
     private DataExtractionEmailClient emailClient;
 
+    @Autowired
+    private CSVExtractor csvExtractor;
+
+    //@Value("${dataExtraction.status.DA.emailTo}") String destinationEmailAddress//TODO
+
     @Override
     public Void execute(TaskContext context, Void payload) throws TaskException {
 
         LocalDate dateToExtract = context.getTransientObject(DATE_TO_EXTRACT_KEY);
-        String fileNamePrefix = "DA";//TODO - DA specific bit
-        String attachmentFileName = String.format("%s_%s.csv", fileNamePrefix, dateToExtract.format(DATA_EXTRACTION_DATE_FORMAT_FOR_FILE_NAME));
+        String attachmentFileName = String.format("%s_%s.csv", csvExtractor.getFileNamePrefix(), dateToExtract.format(DATA_EXTRACTION_DATE_FORMAT_FOR_FILE_NAME));
 
         try {
-            emailClient.sendEmailWithAttachment(attachmentFileName, context.getTransientObject(FILE_TO_PUBLISH));
+            emailClient.sendEmailWithAttachment(csvExtractor.getDestinationEmailAddress(), attachmentFileName, context.getTransientObject(FILE_TO_PUBLISH));
         } catch (MessagingException e) {
             throw new TaskException("Error sending e-mail with data extraction file.", e);
         }

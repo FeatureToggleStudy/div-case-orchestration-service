@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.divorce.orchestration.tasks.dataextraction;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseDetails;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskException;
@@ -27,10 +28,28 @@ public class DecreeAbsoluteDataExtractor implements CSVExtractor, CaseDetailsMap
 
     private static final String COMMA = ",";
     private static final String WHO_APPLIED_FOR_DA = "petitioner";
+    private static final String FILE_NAME_PREFIX = "DA";
+
+    private final String destinationEmailAddress;
+
+    public DecreeAbsoluteDataExtractor(
+        @Value("${dataExtraction.status.DA.emailTo}") String destinationEmailAddress) {
+        this.destinationEmailAddress = destinationEmailAddress;
+    }
 
     @Override
     public String getHeaderLine() {
         return "CaseReferenceNumber,DAApplicationDate,DNPronouncementDate,PartyApplyingForDA";
+    }
+
+    @Override
+    public String getDestinationEmailAddress() {
+        return destinationEmailAddress;
+    }
+
+    @Override
+    public String getFileNamePrefix() {
+        return FILE_NAME_PREFIX;
     }
 
     @Override
