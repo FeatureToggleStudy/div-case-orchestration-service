@@ -5,17 +5,16 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.divorce.orchestration.client.CaseMaintenanceClient;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.Task;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskContext;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskException;
-import uk.gov.hmcts.reform.divorce.orchestration.util.CMSHelper;
+import uk.gov.hmcts.reform.divorce.orchestration.util.CMSElasticSearchHelper;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.time.LocalDate;
-import java.util.List;
+import java.util.Optional;
 
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.AUTH_TOKEN_JSON_KEY;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.DA_REQUESTED;
@@ -27,11 +26,13 @@ import static uk.gov.hmcts.reform.divorce.orchestration.workflows.dataextraction
 @Slf4j
 public class DataExtractionFileCreator implements Task<Void> {
 
-    private final CMSHelper cmsHelper;
+    private final CMSElasticSearchHelper cmsElasticSearchHelper;
+    private final DecreeAbsoluteDataExtractor caseDetailsMapper;
 
     @Autowired
-    public DataExtractionFileCreator(CaseMaintenanceClient caseMaintenanceClient, DecreeAbsoluteDataExtractor caseDetailsMapper) {
-        cmsHelper = new CMSHelper(caseMaintenanceClient, caseDetailsMapper);
+    public DataExtractionFileCreator(DecreeAbsoluteDataExtractor caseDetailsMapper, CMSElasticSearchHelper cmsElasticSearchHelper) {//TODO - reorder these parameters
+        this.cmsElasticSearchHelper = cmsElasticSearchHelper;
+        this.caseDetailsMapper = caseDetailsMapper;
     }
 
     @Override
@@ -43,12 +44,16 @@ public class DataExtractionFileCreator implements Task<Void> {
             QueryBuilders.termQuery("last_modified", lastModifiedDate),
             QueryBuilders.termsQuery("state", DA_REQUESTED.toLowerCase(), DIVORCE_GRANTED.toLowerCase())
         };
-        List<String> csvBodyLines = cmsHelper.searchCMSCases(0, 50, authToken, queryBuilders);
-        log.info("Created csv file with {} lines of case data", csvBodyLines.size());
+//        log.info("Created csv file with {} lines of case data", csvBodyLines.size());//TODO - this won't work now
 
         StringBuilder csvFileContent = new StringBuilder();
         csvFileContent.append("CaseReferenceNumber,DAApplicationDate,DNPronouncementDate,PartyApplyingForDA");
-        csvBodyLines.stream().forEach(csvFileContent::append);
+
+        cmsElasticSearchHelper.searchCMSCases(0, 50, authToken, queryBuilders)
+            .map(caseDetailsMapper::mapCaseData)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .forEach(csvFileContent::append);
 
         File csvFile = createFile(csvFileContent.toString());
         context.setTransientObject(FILE_TO_PUBLISH, csvFile);

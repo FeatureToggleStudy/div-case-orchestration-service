@@ -6,15 +6,15 @@ import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import uk.gov.hmcts.reform.divorce.orchestration.client.CaseMaintenanceClient;
+import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseDetails;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.Task;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskContext;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskException;
-import uk.gov.hmcts.reform.divorce.orchestration.tasks.transformation.CaseIdMapper;
-import uk.gov.hmcts.reform.divorce.orchestration.util.CMSHelper;
+import uk.gov.hmcts.reform.divorce.orchestration.util.CMSElasticSearchHelper;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.BulkCaseConstants.SEARCH_RESULT_KEY;
 import static uk.gov.hmcts.reform.divorce.orchestration.domain.model.OrchestrationConstants.AUTH_TOKEN_JSON_KEY;
@@ -29,13 +29,11 @@ public class SearchDNPronouncedCases implements Task<Map<String, Object>> {
 
     private static String DN_GRANTED_DATE = String.format("data.%s", DECREE_NISI_GRANTED_DATE_CCD_FIELD);
 
-    private final CaseMaintenanceClient caseMaintenanceClient;
-    private final CMSHelper cmsHelper;
+    private final CMSElasticSearchHelper cmsElasticSearchHelper;
 
     @Autowired
-    public SearchDNPronouncedCases(CaseMaintenanceClient caseMaintenanceClient, CaseIdMapper caseDetailsMapper) {
-        this.caseMaintenanceClient = caseMaintenanceClient;
-        this.cmsHelper = new CMSHelper(this.caseMaintenanceClient, caseDetailsMapper);
+    public SearchDNPronouncedCases(CMSElasticSearchHelper cmsElasticSearchHelper) {
+        this.cmsElasticSearchHelper = cmsElasticSearchHelper;
     }
 
     @Override
@@ -49,7 +47,9 @@ public class SearchDNPronouncedCases implements Task<Map<String, Object>> {
         QueryBuilder dateFilter = QueryBuilders.rangeQuery(DN_GRANTED_DATE).lte(buildCoolOffPeriodInDNBoundary(coolOffPeriodInDN));
 
         try {
-            List<String> caseIdList = cmsHelper.searchCMSCases(start, pageSize, authToken, stateQuery, dateFilter);
+            List<String> caseIdList = cmsElasticSearchHelper.searchCMSCases(start, pageSize, authToken, stateQuery, dateFilter)
+                .map(CaseDetails::getCaseId)
+                .collect(Collectors.toList());
             context.setTransientObject(SEARCH_RESULT_KEY, caseIdList);
         } catch (FeignException fException) {
             log.error("DN Pronounced cases eligible for DA search job failed: " + fException.getMessage(), fException);

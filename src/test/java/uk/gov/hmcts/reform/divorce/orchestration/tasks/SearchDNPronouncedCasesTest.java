@@ -14,7 +14,7 @@ import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.CaseDetails;
 import uk.gov.hmcts.reform.divorce.orchestration.domain.model.ccd.SearchResult;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.DefaultTaskContext;
 import uk.gov.hmcts.reform.divorce.orchestration.framework.workflow.task.TaskException;
-import uk.gov.hmcts.reform.divorce.orchestration.tasks.transformation.CaseIdMapper;
+import uk.gov.hmcts.reform.divorce.orchestration.util.CMSElasticSearchHelper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,8 +46,6 @@ public class SearchDNPronouncedCasesTest {
     @Mock
     private CaseMaintenanceClient caseMaintenanceClient;
 
-    private CaseIdMapper caseDetailsMapper = new CaseIdMapper();
-
     private SearchDNPronouncedCases classUnderTest;
 
     private int pageSize;
@@ -60,7 +58,7 @@ public class SearchDNPronouncedCasesTest {
 
     @Before
     public void setupTaskContextWithSearchSettings() {
-        classUnderTest = new SearchDNPronouncedCases(caseMaintenanceClient, caseDetailsMapper);
+        classUnderTest = new SearchDNPronouncedCases(new CMSElasticSearchHelper(null));//TODO - mock this - solve the other mock first - rebase first
 
         pageSize = 10;
         start = 0;
